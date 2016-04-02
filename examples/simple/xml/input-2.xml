@@ -1,0 +1,32 @@
+<PurchaseOrder PurchaseOrderNumber="52256" OrderDate="2016-04-01">
+  <Address Type="Shipping">
+    <Name>John Doe</Name>
+    <Street>456 Parkway Drive</Street>
+    <City>Sydney</City>
+    <State>New South Wales</State>
+    <Zip>10150</Zip>
+    <Country>Australia</Country>
+  </Address>
+  <Address Type="Billing">
+    <Name>Jane Doe</Name>
+    <Street>456 Parkway Drive</Street>
+    <City>Sydney</City>
+    <State>New South Wales</State>
+    <Zip>10150</Zip>
+    <Country>Australia</Country>
+  </Address>
+  <DeliveryNotes>Deliver packages personally.</DeliveryNotes>
+  <Items>
+    <Item PartNumber="367-XY">
+      <ProductName>Heroin</ProductName>
+      <Quantity>3</Quantity>
+      <USPrice>3234.14</USPrice>
+    </Item>
+    <Item PartNumber="221-BC">
+      <ProductName>Chainsaw</ProductName>
+      <Quantity>1</Quantity>
+      <USPrice>129.95</USPrice>
+      <ShipDate>2015-10-12</ShipDate>
+    </Item>
+  </Items>
+</PurchaseOrder>

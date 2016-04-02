@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>Purchase Order</title><style type="text/css">
+          body {
+            font-family: sans-serif;
+            padding: 0.625rem
+          }
+
+          dt {
+            font-weight: bold;
+          }
+
+          .DeliveryNotes {
+            font-style: italic;
+          }
+        </style></head>
+   <body>
+      <h1>Purchase Order</h1>
+      <article class="PurchaseOrder" data-order-number="99503">
+         <dl>
+            <dt>Order date</dt>
+            <dd>
+               <time>1999-10-20</time>
+            </dd>
+         </dl>
+         <h2>Purchase Order 99503</h2>
+         <h3>Shipping address</h3>
+         <address data-type="Shipping">Ellen Adams<br>123 Maple Street<br>Mill Valley<br>CA 10999 USA 
+         </address>
+         <h3>Billing address</h3>
+         <address data-type="Billing">Tai Yee<br>8 Oak Avenue<br>Old Town<br>PA 95819 USA 
+         </address>
+         <p class="DeliveryNotes">Please leave packages in shed by driveway.</p>
+         <dl>
+            <dt data-part-number="872-AA">Lawnmower</dt>
+            <dd class="Quantity">1</dd>
+            <dd class="USPrice">148.95</dd>
+            <dd class="Comment">Confirm this is electric</dd>
+            <dt data-part-number="926-AA">Baby Monitor</dt>
+            <dd class="Quantity">2</dd>
+            <dd class="USPrice">39.98</dd>
+            <dd class="ShipDate">1999-05-21</dd>
+         </dl>
+      </article>
+   </body>
+</html>

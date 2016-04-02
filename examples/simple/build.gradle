@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.github.eerohele:saxon-gradle:0.1.0'
+        classpath 'nu.validator:validator:16.3.3'
+    }
+}
+
+apply plugin: 'com.github.eerohele.saxon-gradle'
+
+defaultTasks 'xslt'
+
+xslt {
+    stylesheet 'xsl/html5.xsl'
+
+    // Transform every .xml file in the xml directory.
+    input fileTree(dir: 'xml', include: '*.xml')
+
+    // Set XSLT parameters.
+    parameters(
+        title: 'Purchase Order',
+        padding: '0.625rem'
+    )
+
+    // Validate results with HTML5 validator.
+    finalizedBy 'validate'
+}
+
+import nu.validator.client.SimpleCommandLineValidator
+
+task validate(type: JavaExec) {
+    classpath = buildscript.configurations.classpath
+    main = SimpleCommandLineValidator.getName()
+    args xslt.getOutputFiles()
+}

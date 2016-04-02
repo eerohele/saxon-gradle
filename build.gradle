@@ -1,0 +1,60 @@
+plugins {
+    id 'com.gradle.plugin-publish' version '0.9.1'
+}
+
+apply plugin: 'com.gradle.plugin-publish'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'codenarc'
+
+allprojects {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+
+dependencies {
+    compile gradleApi()
+    compile 'net.sf.saxon:Saxon-HE:9.7.0-4'
+    compile 'xml-resolver:xml-resolver:1.2'
+
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+group = 'com.github.eerohele'
+version = '0.1.0'
+
+test {
+    systemProperty 'examples.dir', new File(projectDir, 'examples')
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+
+codenarc {
+    toolVersion = '0.24.1'
+    configFile = file('config/codenarc/codenarc.groovy')
+}
+
+pluginBundle {
+    website = 'https://github.com/eerohele/saxon-gradle'
+    vcsUrl = 'https://github.com/eerohele/saxon-gradle.git'
+    description = 'A Gradle plugin for running Saxon'
+    tags = ['saxon', 'xslt', 'documentation']
+
+    plugins {
+        SaxonPlugin {
+            id = 'com.github.eerohele.saxon-gradle'
+            displayName = 'Saxon Gradle Plugin'
+        }
+    }
+}
+
+publishPlugins.dependsOn check
