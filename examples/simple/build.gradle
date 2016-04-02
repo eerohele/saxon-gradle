@@ -1,16 +1,16 @@
 buildscript {
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.github.eerohele:saxon-gradle:0.1.0'
         classpath 'nu.validator:validator:16.3.3'
     }
 }
 
-apply plugin: 'com.github.eerohele.saxon-gradle'
+plugins {
+    id 'com.github.eerohele.saxon-gradle' version '0.1.0'
+}
 
 defaultTasks 'xslt'
 
