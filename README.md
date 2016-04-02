@@ -27,12 +27,14 @@ xslt {
 }
 ```
 
+See the `examples` directory in this repository for additional examples.
+
 ## Benefits
 - A nice and clean syntax for running XSLT transformations with Saxon.
 - Easily configure Saxon either in the Gradle buildfile or via a
   [Saxon configuration file][saxon-config-file].
-- Only rerun the transformation if the input file(s) or the
-  stylesheet has changed (or if forced with `--rerun-tasks`).
+- Only rerun the transformation if the input file(s) or the stylesheet has
+  changed (or if forced with `--rerun-tasks`).
 - Transform Gradle [file collections][gradle-file-collections].
 - Use XSLT 3.0 via Saxon-HE.
 
@@ -65,8 +67,8 @@ useAssociatedStylesheet
 ```
 
 ## Limitations
-- Currently only supports XSLT. If you need XQuery support,
-  please open an issue and I'll see what I can do.
+- Currently only supports XSLT. If you need XQuery support, please open an issue
+  and I'll see what I can do.
 
 [gradle]: http://gradle.org/
 [gradle-file-collections]: https://docs.gradle.org/current/userguide/working_with_files.html#sec:file_collections
