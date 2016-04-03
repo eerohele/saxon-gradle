@@ -35,6 +35,8 @@ See the `examples` directory in this repository for additional examples.
   [Saxon configuration file][saxon-config-file].
 - Only rerun the transformation if the input file(s) or the stylesheet has
   changed (or if forced with `--rerun-tasks`).
+- Rapid XSLT development via Gradle's `--continuous` option: automatically
+  run your stylesheet every time it or your input file changes.
 - Transform Gradle [file collections][gradle-file-collections].
 - Use XSLT 3.0 via Saxon-HE.
 
