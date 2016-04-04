@@ -85,7 +85,7 @@ class SaxonXsltTask extends DefaultTask {
         Set<File> inputFiles = project.files(this.options.input).files
 
         if (inputFiles.size() == 1 && this.options.output) {
-            project.files(this.options.output)
+            project.file(this.options.output)
         } else {
             String basename = file.getName().tokenize(PERIOD)[0]
             String extension = getDefaultOutputExtension(stylesheet)

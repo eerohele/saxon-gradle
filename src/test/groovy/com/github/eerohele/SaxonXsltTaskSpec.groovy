@@ -4,6 +4,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
 
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
+
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -62,6 +64,36 @@ class SaxonXsltTaskSpec extends Specification {
         then:
             task.options.input.contains(new File("$examplesDir/simple/xml/input-1.xml"))
             task.options.input.contains(new File("$examplesDir/simple/xml/input-2.xml"))
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
+    def 'Giving String as output'() {
+        when:
+            Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
+                input "$examplesDir/simple/xml/input-1.xml"
+                output "$examplesDir/simple/build/input-1.html"
+            }
+
+        then:
+            task.options.output == "$examplesDir/simple/build/input-1.html"
+
+        and:
+            notThrown GroovyCastException
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
+    def 'Giving File as output'() {
+        when:
+            Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
+                input "$examplesDir/simple/xml/input-1.xml"
+                output new File("$examplesDir/simple/build/input-1.html")
+            }
+
+        then:
+            task.options.output == new File("$examplesDir/simple/build/input-1.html")
+
+        and:
+            notThrown GroovyCastException
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
