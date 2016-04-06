@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.1.3 - 2016-04-06
+- Fix Saxon config file path resolution error #1
+
 ## 0.1.2 - 2016-04-06
 - Fix subproject stylesheet path resolution error #1
 

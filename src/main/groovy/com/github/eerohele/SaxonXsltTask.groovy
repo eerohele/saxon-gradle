@@ -59,6 +59,10 @@ class SaxonXsltTask extends DefaultTask {
         this.options.stylesheet = project.file(stylesheet)
     }
 
+    void config(Object config) {
+        this.options.config = project.file(config)
+    }
+
     @SuppressWarnings('ConfusingMethodName')
     void parameters(Map<String, String> parameters) {
         this.parameters = parameters
