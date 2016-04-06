@@ -97,6 +97,18 @@ class SaxonXsltTaskSpec extends Specification {
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
+    def 'Stylesheet path is resolved'() {
+        when:
+            Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                input "$examplesDir/simple/xml/input-1.xml"
+            }
+
+        then:
+            task.options.stylesheet.getCanonicalPath() == new File("$examplesDir/simple/xsl/html5.xsl").getCanonicalPath()
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
     def 'Input file and stylesheet included in up-to-date check'() {
         when:
             Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {

@@ -55,6 +55,10 @@ class SaxonXsltTask extends DefaultTask {
         'false': 'off'
     ]
 
+    void stylesheet(Object stylesheet) {
+        this.options.stylesheet = project.file(stylesheet)
+    }
+
     @SuppressWarnings('ConfusingMethodName')
     void parameters(Map<String, String> parameters) {
         this.parameters = parameters
