@@ -72,6 +72,13 @@ class SaxonXsltTask extends DefaultTask {
     // stylesheet.
     private String getDefaultOutputExtension(File stylesheet) {
         String method = new XmlSlurper()
+            // (2016-06-27) charlescrichton: 
+            // Issue: Error when running XSLT containing DOCTYPE: 'DOCTYPE is disallowed when the feature "http://apache.org/xml/features/disallow-doctype-decl" set to true.'
+            // Using the fix from http://stackoverflow.com/a/30754000 
+            .setFeature("http://apache.org/xml/features/disallow-doctype-decl", false) // http://stackoverflow.com/a/30754000
+            
+            .setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); // http://stackoverflow.com/a/30754000
+            
             .parse(stylesheet)
             .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
             .output
