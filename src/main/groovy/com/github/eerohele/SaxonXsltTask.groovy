@@ -16,6 +16,8 @@ class SaxonXsltTask extends DefaultTask {
     Map<String, String> options = [:]
     Map<String, String> parameters
 
+    XmlSlurper slurper = new XmlSlurper()
+
     // A map from plugin arguments to Saxon command-line options.
     //
     // See http://www.saxonica.com/html/documentation/using-xsl/commandline.html
@@ -71,7 +73,7 @@ class SaxonXsltTask extends DefaultTask {
     // Read output file extension from the <xsl:output> element of the
     // stylesheet.
     private String getDefaultOutputExtension(File stylesheet) {
-        String method = new XmlSlurper()
+        String method = this.slurper
             .parse(stylesheet)
             .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
             .output
@@ -116,6 +118,9 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     SaxonXsltTask() {
+        slurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
+        slurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
+
         ExpandoMetaClass mc = new ExpandoMetaClass(SaxonXsltTask, false, true)
         mc.initialize()
         this.metaClass = mc
