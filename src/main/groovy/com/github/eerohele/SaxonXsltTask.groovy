@@ -97,7 +97,8 @@ class SaxonXsltTask extends DefaultTask {
         if (inputFiles.size() == 1 && this.options.output) {
             project.file(this.options.output)
         } else {
-            String basename = file.getName().tokenize(PERIOD)[0]
+            String name = file.getName()
+            String basename = name.substring(0, name.lastIndexOf(PERIOD))
             String extension = getDefaultOutputExtension(stylesheet)
             String filename = [basename, extension].join(PERIOD)
             new File(project.buildDir, filename)
