@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.1.5 - 2016-09-09
+- Fix support for input file names with multiple periods
+
 ## 0.1.4 - 2016-04-07
 - Fix support for stylesheets with DOCTYPE declarations #4
 
