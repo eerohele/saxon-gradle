@@ -1,5 +1,7 @@
 package com.github.eerohele
 
+import groovy.util.slurpersupport.GPathResult
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.InputFiles
@@ -16,7 +18,8 @@ class SaxonXsltTask extends DefaultTask {
     Map<String, String> options = [:]
     Map<String, String> parameters
 
-    XmlSlurper slurper = new XmlSlurper()
+    private XmlSlurper slurper = new XmlSlurper()
+    private GPathResult xslt
 
     // A map from plugin arguments to Saxon command-line options.
     //
@@ -59,10 +62,18 @@ class SaxonXsltTask extends DefaultTask {
 
     void stylesheet(Object stylesheet) {
         this.options.stylesheet = project.file(stylesheet)
+
+        this.xslt = this.slurper
+            .parse(stylesheet)
+            .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
     }
 
     void config(Object config) {
         this.options.config = project.file(config)
+    }
+
+    void catalog(Object catalog) {
+        this.options.catalog = project.file(catalog)
     }
 
     @SuppressWarnings('ConfusingMethodName')
@@ -73,13 +84,16 @@ class SaxonXsltTask extends DefaultTask {
     // Read output file extension from the <xsl:output> element of the
     // stylesheet.
     private String getDefaultOutputExtension(File stylesheet) {
-        String method = this.slurper
-            .parse(stylesheet)
-            .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
-            .output
-            .@method
-
+        String method = this.xslt.output.@method
         return method ? method : 'xml'
+    }
+
+    private Set<File> getIncludedStylesheets(File stylesheet, Set<File> accumulator = [].asImmutable() as Set) {
+        def xslt = this.slurper.parse(stylesheet).declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
+
+        [stylesheet] + (xslt.include + xslt.import).inject(accumulator) { acc, i ->
+            acc + getIncludedStylesheets(new File(stylesheet.getParent(), i.@href[0].toString()), acc)
+        }
     }
 
     // Get the default output file name.
@@ -115,7 +129,7 @@ class SaxonXsltTask extends DefaultTask {
     @InputFiles
     @SkipWhenEmpty
     FileCollection getInputFiles() {
-        project.files(this.options.input, this.options.stylesheet)
+        project.files(this.options.input, getIncludedStylesheets(this.options.stylesheet))
     }
 
     SaxonXsltTask() {
