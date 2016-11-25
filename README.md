@@ -7,7 +7,7 @@ A plugin for running [Saxon][saxon] from [Gradle][gradle].
 
 ```groovy
 plugins {
-    id 'com.github.eerohele.saxon-gradle' version '0.1.4'
+    id 'com.github.eerohele.saxon-gradle' version '0.2.0'
 }
 
 xslt {

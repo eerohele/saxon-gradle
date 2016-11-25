@@ -2,10 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.1.5 - 2016-11-25
+## 0.2.0 - 2016-11-25
 - Fix support for input file names with multiple periods
 - Include stylesheets included with `<xsl:include>` or `<xsl:import>` in up-to-date check
 - Fix critical plugin parameter mapping issue #5
+
+## 0.1.5 - 2016-11-25
+- Unreleased
 
 ## 0.1.4 - 2016-04-07
 - Fix support for stylesheets with DOCTYPE declarations #4
