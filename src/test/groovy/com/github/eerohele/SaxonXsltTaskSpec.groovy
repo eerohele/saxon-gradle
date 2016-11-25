@@ -8,9 +8,6 @@ import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
 import spock.lang.Specification
 
-import java.nio.file.Files
-import java.nio.file.Paths
-
 class SaxonXsltTaskSpec extends Specification {
     final String XSLT = 'xslt'
 
@@ -167,8 +164,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
             File input = new File("$examplesDir/simple/xml/input-1.xml")
-            File stylesheet = new File("$examplesDir/simple/xsl/html5.xsl")
-            task.getOutputFile(input, stylesheet).getName() == 'input-1.html'
+            task.getOutputFile(input).getName() == 'input-1.html'
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])

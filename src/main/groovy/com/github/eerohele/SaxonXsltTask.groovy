@@ -12,6 +12,7 @@ import org.gradle.api.InvalidUserDataException
 
 class SaxonXsltTask extends DefaultTask {
     protected static final String PERIOD = '.'
+    protected static final String XSLT_NAMESPACE = 'http://www.w3.org/1999/XSL/Transform'
 
     protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
@@ -125,7 +126,7 @@ class SaxonXsltTask extends DefaultTask {
 
         this.xslt = this.xmlSlurper
             .parse(stylesheet)
-            .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
+            .declareNamespace(xsl: XSLT_NAMESPACE)
     }
 
     void stylesheetSaxParser(String parser) {
@@ -151,13 +152,13 @@ class SaxonXsltTask extends DefaultTask {
 
     // Read output file extension from the <xsl:output> element of the
     // stylesheet.
-    protected String getDefaultOutputExtension(File stylesheet) {
+    protected String getDefaultOutputExtension() {
         String method = this.xslt.output.@method
         return method ? method : 'xml'
     }
 
     protected Set<File> getIncludedStylesheets(File stylesheet, Set<File> stylesheets = [].asImmutable() as Set) {
-        def xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
+        def xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
 
         [stylesheet] + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
             acc + getIncludedStylesheets(new File(stylesheet.getParent(), i.@href[0].toString()), acc)
@@ -173,7 +174,7 @@ class SaxonXsltTask extends DefaultTask {
     // Would love to use commons-io for this, but I don't really want to because
     // adding into the plugin classpath causes clashes with the Gradle runtime
     // classpath.
-    protected File getOutputFile(File file, File stylesheet) {
+    protected File getOutputFile(File file) {
         Set<File> inputFiles = project.files(this.options.input).files
 
         if (inputFiles.size() == 1 && this.options.output) {
@@ -181,7 +182,7 @@ class SaxonXsltTask extends DefaultTask {
         } else {
             String name = file.getName()
             String basename = name.substring(0, name.lastIndexOf(PERIOD))
-            String extension = getDefaultOutputExtension(stylesheet)
+            String extension = getDefaultOutputExtension()
             String filename = [basename, extension].join(PERIOD)
             new File(project.buildDir, filename)
         }
@@ -243,13 +244,13 @@ class SaxonXsltTask extends DefaultTask {
         }.asImmutable()
     }
 
-    protected List<String> getFileSpecificArguments(File file, File stylesheet) {
+    protected List<String> getFileSpecificArguments(File file) {
         [
             makeSaxonArgument(this.argumentMapping.input, file.getPath()),
 
             makeSaxonArgument(
                 this.argumentMapping.output,
-                getOutputFile(file, stylesheet).getPath()
+                getOutputFile(file).getPath()
             )
         ].asImmutable()
     }
@@ -260,9 +261,7 @@ class SaxonXsltTask extends DefaultTask {
         List<String> commonArguments = getCommonArguments()
 
         project.files(this.options.input).each {
-            List<String> fileSpecificArguments = getFileSpecificArguments(
-                it, project.file(this.options.stylesheet)
-            )
+            List<String> fileSpecificArguments = getFileSpecificArguments(it)
 
             List<String> arguments = (
                 fileSpecificArguments + commonArguments + parameters
