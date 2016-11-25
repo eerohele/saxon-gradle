@@ -214,7 +214,7 @@ class SaxonXsltTask extends DefaultTask {
     @OutputFiles
     FileCollection getOutputFiles() {
         project.files(inputFiles.collect {
-            getOutputFile(it, project.file(this.options.stylesheet))
+            getOutputFile(it)
         })
     }
 
