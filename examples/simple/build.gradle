@@ -29,6 +29,8 @@ xslt {
     // Set Saxon configuration file
     config 'config/configuration.xml'
 
+    catalog 'catalog.xml'
+
     // Validate results with HTML5 validator.
     finalizedBy 'validate'
 }
