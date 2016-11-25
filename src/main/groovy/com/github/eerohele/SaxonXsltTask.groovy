@@ -11,20 +11,20 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.InvalidUserDataException
 
 class SaxonXsltTask extends DefaultTask {
-    private static final String PERIOD = '.'
+    protected static final String PERIOD = '.'
 
-    private final List<String> defaultArguments = ['-quit:off'].asImmutable()
+    protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
     Map<String, String> options = [:]
     Map<String, String> parameters
 
-    private XmlSlurper slurper = new XmlSlurper()
-    private GPathResult xslt
+    protected XmlSlurper xmlSlurper = new XmlSlurper()
+    protected GPathResult xslt
 
     // A map from plugin arguments to Saxon command-line options.
     //
     // See http://www.saxonica.com/html/documentation/using-xsl/commandline.html
-    private final Map<String, String> argumentMapping = [
+    protected final Map<String, String> argumentMapping = [
         catalog:                 'catalog',
         collectionResolver:      'cr',
         config:                  'config',
@@ -43,7 +43,6 @@ class SaxonXsltTask extends DefaultTask {
         stylesheetSaxParser:     'y',
         suppressJavaCalls:       'ext',
         uriResolver:             'r',
-        uriSources:              'u',
         useAssociatedStylesheet: 'a'
     ].asImmutable()
 
@@ -55,25 +54,94 @@ class SaxonXsltTask extends DefaultTask {
     // xslt {
     //    dtd: true
     // }
-    private static final Map<String, String> ON_OFF = [
+    protected static final Map<String, String> ON_OFF = [
         'true':  'on',
         'false': 'off'
     ]
 
-    void stylesheet(Object stylesheet) {
-        this.options.stylesheet = project.file(stylesheet)
-
-        this.xslt = this.slurper
-            .parse(stylesheet)
-            .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
+    SaxonXsltTask() {
+        xmlSlurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
+        xmlSlurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
     }
 
     void config(Object config) {
         this.options.config = project.file(config)
     }
 
+    void collectionResolver(String resolver) {
+        this.options.collectionResolver = resolver
+    }
+
     void catalog(Object catalog) {
         this.options.catalog = project.file(catalog)
+    }
+
+    void dtd(Object dtd) {
+        this.options.dtd = dtd
+    }
+
+    void expand(Object expand) {
+        this.options.expand = expand
+    }
+
+    void explain(Object explain) {
+        this.options.explain = explain
+    }
+
+    void initializer(String initializer) {
+        this.options.initializer = initializer
+    }
+
+    void initialMode(String initialMode) {
+        this.options.initialMode = initialMode
+    }
+
+    void initialTemplate(String initialTemplate) {
+        this.options.initialTemplate = initialTemplate
+    }
+
+    void input(Object input) {
+        this.options.input = input
+    }
+
+    void lineNumbers(Object lineNumbers) {
+        this.options.lineNumbers = lineNumbers
+    }
+
+    void messageReceiver(String receiver) {
+        this.options.messageReceiver = receiver
+    }
+
+    void output(Object output) {
+        this.options.output = output
+    }
+
+    void sourceSaxParser(String parser) {
+        this.options.sourceSaxParser = parser
+    }
+
+    void stylesheet(Object stylesheet) {
+        this.options.stylesheet = project.file(stylesheet)
+
+        this.xslt = this.xmlSlurper
+            .parse(stylesheet)
+            .declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
+    }
+
+    void stylesheetSaxParser(String parser) {
+        this.options.stylesheetSaxParser = parser
+    }
+
+    void suppressJavaCalls(Object suppress) {
+        this.options.suppressJavaCalls = suppress
+    }
+
+    void uriResolver(Object resolver) {
+        this.options.uriResolver = resolver
+    }
+
+    void useAssociatedStylesheet(Object use) {
+        this.options.useAssociatedStylesheet = use
     }
 
     @SuppressWarnings('ConfusingMethodName')
@@ -83,15 +151,15 @@ class SaxonXsltTask extends DefaultTask {
 
     // Read output file extension from the <xsl:output> element of the
     // stylesheet.
-    private String getDefaultOutputExtension(File stylesheet) {
+    protected String getDefaultOutputExtension(File stylesheet) {
         String method = this.xslt.output.@method
         return method ? method : 'xml'
     }
 
-    private Set<File> getIncludedStylesheets(File stylesheet, Set<File> accumulator = [].asImmutable() as Set) {
-        def xslt = this.slurper.parse(stylesheet).declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
+    protected Set<File> getIncludedStylesheets(File stylesheet, Set<File> stylesheets = [].asImmutable() as Set) {
+        def xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: 'http://www.w3.org/1999/XSL/Transform')
 
-        [stylesheet] + (xslt.include + xslt.import).inject(accumulator) { acc, i ->
+        [stylesheet] + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
             acc + getIncludedStylesheets(new File(stylesheet.getParent(), i.@href[0].toString()), acc)
         }
     }
@@ -105,7 +173,7 @@ class SaxonXsltTask extends DefaultTask {
     // Would love to use commons-io for this, but I don't really want to because
     // adding into the plugin classpath causes clashes with the Gradle runtime
     // classpath.
-    private File getOutputFile(File file, File stylesheet) {
+    protected File getOutputFile(File file, File stylesheet) {
         Set<File> inputFiles = project.files(this.options.input).files
 
         if (inputFiles.size() == 1 && this.options.output) {
@@ -132,15 +200,6 @@ class SaxonXsltTask extends DefaultTask {
         project.files(this.options.input, getIncludedStylesheets(this.options.stylesheet))
     }
 
-    SaxonXsltTask() {
-        slurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
-        slurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
-
-        ExpandoMetaClass mc = new ExpandoMetaClass(SaxonXsltTask, false, true)
-        mc.initialize()
-        this.metaClass = mc
-    }
-
     // Turn a key-value pair into a Saxon command line argument.
     //
     // Examples:
@@ -150,35 +209,15 @@ class SaxonXsltTask extends DefaultTask {
     //
     //   makeSaxonArgument('dtd', true)
     //   ===> '-dtd:on'
-    private static String makeSaxonArgument(key, value) {
+    protected static String makeSaxonArgument(key, value) {
         ['-' + key, ON_OFF.get(value.toString(), value)].join(':')
-    }
-
-    // If the user calls a missing method, assume they're trying to set an
-    // option. Set the option indicated by the method name to have the value
-    // indicated by the first argument to the method. Other arguments are
-    // ignored.
-    //
-    // This probably isn't very smart (or fast), but it was a quick and easy
-    // way to add support for all of Saxon's command-line arguments while
-    // having a nice API.
-    @SuppressWarnings('UnusedPrivateMethod')
-    private Boolean methodMissing(String name, arguments) {
-        Object argument = arguments[0]
-
-        Closure cachedMethod = {
-            this.options[name] = argument
-        }
-
-        this.metaClass[name] = cachedMethod
-        cachedMethod(argument)
     }
 
     // Convert the stylesheet parameters supplied by the user to KEY=VALUE
     // pairs, which is what Saxon understands.
     //
     // TODO: Investigate how to improve support for XPath data types.
-    private List<String> getStylesheetParameters() {
+    protected List<String> getStylesheetParameters() {
         this.parameters.collect { name, value ->
             [name, value].join('=')
         }.asImmutable()
@@ -186,7 +225,7 @@ class SaxonXsltTask extends DefaultTask {
 
     // Set options common to all transformations: everything except input
     // and output.
-    private List<String> getCommonArguments() {
+    protected List<String> getCommonArguments() {
         Map<String, String> commonOptions = this.options.findAll { name, value ->
             !['input', 'output'].contains(name)
         }.asImmutable()
@@ -204,7 +243,7 @@ class SaxonXsltTask extends DefaultTask {
         }.asImmutable()
     }
 
-    private List<String> getFileSpecificArguments(File file, File stylesheet) {
+    protected List<String> getFileSpecificArguments(File file, File stylesheet) {
         [
             makeSaxonArgument(this.argumentMapping.input, file.getPath()),
 

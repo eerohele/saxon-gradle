@@ -25,13 +25,6 @@ class SaxonXsltTaskSpec extends Specification {
         project.configurations.create(XSLT)
     }
 
-    Boolean assertFilesEqual(File file1, File file2) {
-        Arrays.equals(
-            Files.readAllBytes(Paths.get(file1.toURI())),
-            Files.readAllBytes(Paths.get(file2.toURI()))
-        )
-    }
-
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
     def 'Giving String as input'() {
         when:
@@ -135,11 +128,41 @@ class SaxonXsltTaskSpec extends Specification {
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
+    def 'Setting all parameters works'() {
+        when:
+            Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
+                catalog 'catalog.xml'
+                collectionResolver 'foo.bar.SaxonCollectionResolver'
+                config 'saxon-config.xml'
+                dtd true
+                expand true
+                explain false
+                initializer 'foo.bar.SaxonInitializer'
+                initialMode 'foo'
+                initialTemplate 'bar'
+                input "$examplesDir/simple/xml/input-1.xml"
+                lineNumbers 'yes'
+                messageReceiver 'foo.bar.SaxonMessageReceiver'
+                output "${project.buildDir}/output.xml"
+                sourceSaxParser 'foo.bar.SaxonSourceSaxParser'
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                stylesheetSaxParser 'foo.bar.SaxonStylesheetSaxParser'
+                suppressJavaCalls false
+                uriResolver 'foo.bar.SaxonUriResolver'
+                useAssociatedStylesheet 'no'
+            }
+
+        then:
+                task.options.initialTemplate == 'bar'
+                noExceptionThrown()
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
     def 'Uses input file basename as output file basename and stylesheet output method as extension'() {
         when:
             Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
-                input "$examplesDir/simple/xml/input-1.xml"
-                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                input project.file("$examplesDir/simple/xml/input-1.xml")
+                stylesheet project.file("$examplesDir/simple/xsl/html5.xsl")
             }
 
         then:
@@ -161,6 +184,7 @@ class SaxonXsltTaskSpec extends Specification {
             Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
                 input "$examplesDir/simple/xml/input-1.xml"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
+
                 parameters(
                     foo: 'bar',
                     baz: 'quux'
@@ -196,6 +220,8 @@ class SaxonXsltTaskSpec extends Specification {
 
         and:
             File expectedFile = new File("$examplesDir/simple/exp/input-1.html")
-            assertFilesEqual(outputFile, expectedFile)
+            def f1 = outputFile.getText('UTF-8').trim().replaceAll('(\\s)+', '$1')
+            def f2 = expectedFile.getText('UTF-8').trim().replaceAll('(\\s)+', '$1')
+            f1 == f2
     }
 }
