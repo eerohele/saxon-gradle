@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix support for input file names with multiple periods
 - Include stylesheets included with `<xsl:include>` or `<xsl:import>` in up-to-date check
 - Fix critical plugin parameter mapping issue #5
+- Update to Saxon 9.7.0.11
 
 ## 0.1.5 - 2016-11-25
 - Unreleased
