@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 0.2.1 - 2016-11-25
+- Fix NPE when stylesheet includes stylesheets whose URIs don't have catalog entries
+
 ## 0.2.0 - 2016-11-25
 - Fix support for input file names with multiple periods
 - Include stylesheets included with `<xsl:include>` or `<xsl:import>` in up-to-date check
