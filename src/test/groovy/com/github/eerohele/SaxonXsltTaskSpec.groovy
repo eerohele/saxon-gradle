@@ -112,16 +112,19 @@ class SaxonXsltTaskSpec extends Specification {
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
-    def 'Input file and stylesheet included in up-to-date check'() {
+    def 'Input file and stylesheets included in up-to-date check'() {
         when:
             Task task = project.tasks.create(name: XSLT, type: SaxonXsltTask) {
                 input "$examplesDir/simple/xml/input-1.xml"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
             }
 
         then:
-            task.getInputFiles().contains(new File("$examplesDir/simple/xml/input-1.xml"))
-            task.getInputFiles().contains(new File("$examplesDir/simple/xsl/html5.xsl"))
+            def inputFiles = task.getInputFiles()
+            inputFiles.contains(new File("$examplesDir/simple/xml/input-1.xml"))
+            inputFiles.contains(new File("$examplesDir/simple/xsl/html5.xsl"))
+            inputFiles.contains(new File("$examplesDir/simple/xsl/common.xsl"))
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -201,6 +204,7 @@ class SaxonXsltTaskSpec extends Specification {
             project.xslt {
                 input "$examplesDir/simple/xml/input-1.xml"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
 
                 parameters(
                     title: 'Purchase Order',

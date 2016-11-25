@@ -10,6 +10,10 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.file.FileCollection
 import org.gradle.api.InvalidUserDataException
 
+import org.apache.xml.resolver.Catalog
+import org.apache.xml.resolver.CatalogManager
+
+@SuppressWarnings('MethodCount')
 class SaxonXsltTask extends DefaultTask {
     protected static final String PERIOD = '.'
     protected static final String XSLT_NAMESPACE = 'http://www.w3.org/1999/XSL/Transform'
@@ -21,6 +25,8 @@ class SaxonXsltTask extends DefaultTask {
 
     protected XmlSlurper xmlSlurper = new XmlSlurper()
     protected GPathResult xslt
+    protected Catalog xmlCatalog
+    CatalogManager catalogManager = new CatalogManager()
 
     // A map from plugin arguments to Saxon command-line options.
     //
@@ -63,6 +69,7 @@ class SaxonXsltTask extends DefaultTask {
     SaxonXsltTask() {
         xmlSlurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
         xmlSlurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
+        catalogManager.setIgnoreMissingProperties(true)
     }
 
     void config(Object config) {
@@ -75,6 +82,12 @@ class SaxonXsltTask extends DefaultTask {
 
     void catalog(Object catalog) {
         this.options.catalog = project.file(catalog)
+
+        URI catalogs = this.options.catalog.toURI()
+        catalogManager.setCatalogFiles(catalogs.toString())
+        xmlCatalog = new Catalog(catalogManager)
+        xmlCatalog.setupReaders()
+        xmlCatalog.parseCatalog(catalogs.toString())
     }
 
     void dtd(Object dtd) {
@@ -157,11 +170,21 @@ class SaxonXsltTask extends DefaultTask {
         return method ? method : 'xml'
     }
 
+    protected URI resolveUri(String uri) {
+        if (!this.options.catalog) {
+            new URI(uri)
+        } else {
+            new URI(xmlCatalog.resolveURI(uri))
+        }
+    }
+
     protected Set<File> getIncludedStylesheets(File stylesheet, Set<File> stylesheets = [].asImmutable() as Set) {
-        def xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
+        GPathResult xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
 
         [stylesheet] + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
-            acc + getIncludedStylesheets(new File(stylesheet.getParent(), i.@href[0].toString()), acc)
+            URI href = resolveUri(i.@href[0].toString())
+            URI uri = stylesheet.toURI().resolve(href)
+            acc + getIncludedStylesheets(new File(uri), acc)
         }
     }
 

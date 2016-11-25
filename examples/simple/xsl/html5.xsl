@@ -14,6 +14,8 @@
 
   <xsl:strip-space elements="*"/>
 
+  <xsl:import href="xsl:common.xsl"/>
+
   <xsl:template match="/">
     <html>
       <head>
