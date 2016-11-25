@@ -170,11 +170,14 @@ class SaxonXsltTask extends DefaultTask {
         return method ? method : 'xml'
     }
 
-    protected URI resolveUri(String uri) {
-        if (!this.options.catalog) {
-            new URI(uri)
+    protected URI resolveUri(String path) {
+        URI uri = new URI(path)
+
+        if (this.options.catalog) {
+            String resolved = xmlCatalog.resolveURI(path)
+            resolved ? new URI(resolved) : uri
         } else {
-            new URI(xmlCatalog.resolveURI(uri))
+            uri
         }
     }
 
