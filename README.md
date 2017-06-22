@@ -7,7 +7,7 @@ A plugin for running [Saxon][saxon] from [Gradle][gradle].
 
 ```groovy
 plugins {
-    id 'com.github.eerohele.saxon-gradle' version '0.2.1'
+    id 'com.github.eerohele.saxon-gradle' version '0.3.0'
 }
 
 xslt {
@@ -39,7 +39,7 @@ See the `examples` directory in this repository for additional examples.
 - Rapid XSLT development via Gradle's `--continuous` option: automatically
   run your stylesheet every time it or your input file changes.
 - Transform Gradle [file collections][gradle-file-collections].
-- Use XSLT 3.0 via Saxon-HE 9.7.
+- Use XSLT 3.0 via Saxon-HE 9.8.
 
 ## Options
 

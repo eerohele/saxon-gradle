@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 0.3.0 - 2017-06-22
+- Update to Saxon-HE 9.8.0.2
+
 # 0.2.1 - 2016-11-25
 - Fix NPE when stylesheet includes stylesheets whose URIs don't have catalog entries
 

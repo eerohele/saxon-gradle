@@ -14,7 +14,7 @@ allprojects {
 
 dependencies {
     compile gradleApi()
-    compile 'net.sf.saxon:Saxon-HE:9.7.0-11'
+    compile 'net.sf.saxon:Saxon-HE:9.8.0-2'
     compile 'xml-resolver:xml-resolver:1.2'
 
     testCompile('org.spockframework:spock-core:1.1-groovy-2.4-rc-3') {
@@ -27,14 +27,14 @@ repositories {
 }
 
 group = 'com.github.eerohele'
-version = '0.2.1'
+version = '0.3.0'
 
 test {
     systemProperty 'examples.dir', new File(projectDir, 'examples')
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.2.1'
+    gradleVersion = '4.0'
 }
 
 codenarc {
