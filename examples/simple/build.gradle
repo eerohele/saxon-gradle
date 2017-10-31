@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.eerohele.saxon-gradle' version '0.3.0'
+    id 'com.github.eerohele.saxon-gradle' version '0.4.0'
 }
 
 defaultTasks 'xslt'
