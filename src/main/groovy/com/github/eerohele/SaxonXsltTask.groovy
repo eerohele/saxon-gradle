@@ -13,6 +13,8 @@ import org.gradle.api.InvalidUserDataException
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
 
+import net.sf.saxon.Transform
+
 @SuppressWarnings('MethodCount')
 class SaxonXsltTask extends DefaultTask {
     protected static final String PERIOD = '.'
@@ -293,7 +295,7 @@ class SaxonXsltTask extends DefaultTask {
                 fileSpecificArguments + commonArguments + parameters
             )
 
-            SaxonTransform.main(arguments as String[])
+            new Transform().doTransform(arguments as String[], '')
         }
     }
 }
