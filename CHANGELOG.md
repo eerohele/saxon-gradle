@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 0.4.1 - 2018-01-16
+- Fix output directory for multiple input files #9
+
 # 0.4.0 - 2017-10-31
 - Always use latest Saxon-HE version when releasing new version of the plugin
 
