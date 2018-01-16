@@ -27,7 +27,7 @@ repositories {
 }
 
 group = 'com.github.eerohele'
-version = '0.4.0'
+version = '0.4.1'
 
 test {
     systemProperty 'examples.dir', new File(projectDir, 'examples')
