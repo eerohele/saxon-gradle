@@ -202,6 +202,7 @@ class SaxonXsltTask extends DefaultTask {
     // Would love to use commons-io for this, but I don't really want to because
     // adding into the plugin classpath causes clashes with the Gradle runtime
     // classpath.
+    @OutputFiles
     protected File getOutputFile(File file) {
         Set<File> inputFiles = project.files(this.options.input).files
 
