@@ -208,11 +208,12 @@ class SaxonXsltTask extends DefaultTask {
         if (inputFiles.size() == 1 && this.options.output) {
             project.file(this.options.output)
         } else {
+            File outputDir = this.options.output == null ? project.buildDir : project.file(this.options.output)
             String name = file.getName()
             String basename = name.substring(0, name.lastIndexOf(PERIOD))
             String extension = getDefaultOutputExtension()
             String filename = [basename, extension].join(PERIOD)
-            new File(project.buildDir, filename)
+            new File(outputDir, filename)
         }
     }
 
