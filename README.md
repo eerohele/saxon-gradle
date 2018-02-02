@@ -69,6 +69,10 @@ uriSources
 useAssociatedStylesheet
 ```
 
+The plugin also supports Saxon's advanced options. For a full list of the available advanced options, see the bits
+between `// START ADVANCED OPTIONS` and `// END ADVANCED OPTIONS` in
+[`SaxonXsltTask.groovy`](https://github.com/eerohele/saxon-gradle/blob/master/src/main/groovy/com/github/eerohele/SaxonXsltTask.groovy). 
+
 ## Limitations
 - Currently only supports XSLT. If you need XQuery support, please open an issue
   and I'll see what I can do.
