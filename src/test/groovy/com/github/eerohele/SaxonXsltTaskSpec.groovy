@@ -150,10 +150,14 @@ class SaxonXsltTaskSpec extends Specification {
                 suppressJavaCalls false
                 uriResolver 'foo.bar.SaxonUriResolver'
                 useAssociatedStylesheet 'no'
+                multipleSchemaImports true
+                traceExternalFunctions true
             }
 
         then:
                 task.options.initialTemplate == 'bar'
+                task.advancedOptions.multipleSchemaImports == true
+                task.advancedOptions['trace-external-functions'] == true
                 noExceptionThrown()
     }
 
@@ -173,8 +177,10 @@ class SaxonXsltTaskSpec extends Specification {
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
     def 'Constructing Saxon command-line arguments'() {
         expect:
-            SaxonXsltTask.makeSaxonArgument('foo', 'bar') == '-foo:bar'
-            SaxonXsltTask.makeSaxonArgument('dtd', true) == '-dtd:on'
+            SaxonXsltTask.makeSingleHyphenArgument('foo', 'bar') == '-foo:bar'
+            SaxonXsltTask.makeSingleHyphenArgument('dtd', true) == '-dtd:on'
+            SaxonXsltTask.makeDoubleHyphenArgument('multipleSchemaImports', true) == '--multipleSchemaImports:on'
+            SaxonXsltTask.makeDoubleHyphenArgument('xsd-version', 1.1) == '--xsd-version:1.1'
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
