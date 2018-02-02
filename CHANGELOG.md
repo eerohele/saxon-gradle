@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 0.5.0 - 2018-02-02
+- Add support for Saxon's advanced options #10
+
 # 0.4.1 - 2018-01-16
 - Fix output directory for multiple input files #9
 
