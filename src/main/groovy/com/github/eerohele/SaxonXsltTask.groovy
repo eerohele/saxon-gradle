@@ -233,7 +233,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void validation(Object x) {
-        this.advancedOptions.Object = x;
+        this.advancedOptions.validation = x;
     }
 
     void dtdValidationRecoverable(Object x) {
@@ -313,7 +313,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void namePool(Object x) {
-        this.advancedOptions.Object = x;
+        this.advancedOptions.namePool = x;
     }
 
     void occurrenceLimits(Object x) {
@@ -445,7 +445,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void timing(Object x) {
-        this.advancedOptions.Object = x;
+        this.advancedOptions.timing = x;
     }
 
     void traceExternalFunctions(Object x) {
@@ -469,7 +469,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void treeModel(Object x) {
-        this.advancedOptions.Object = x;
+        this.advancedOptions.treeModel = x;
     }
 
     void treeModelName(Object x) {
