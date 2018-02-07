@@ -673,10 +673,10 @@ class SaxonXsltTask extends DefaultTask {
     //
     // Examples:
     //
-    //   makeSaxonArgument('foo', 'bar')
+    //   makeSaxonArgument('-', 'foo', 'bar')
     //   ===> '-foo:bar'
     //
-    //   makeSaxonArgument('dtd', true)
+    //   makeSaxonArgument('-', 'dtd', true)
     //   ===> '-dtd:on'
     protected static String makeSaxonArgument(prefix, key, value) {
         [prefix + key, ON_OFF.get(value.toString(), value)].join(':')
