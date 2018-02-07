@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>Purchase Order</title><style type="text/css">
+          body {
+            font-family: sans-serif;
+            padding: 0.625rem
+          }
+
+          dt {
+            font-weight: bold;
+          }
+
+          .DeliveryNotes {
+            font-style: italic;
+          }
+        </style></head>
+   <body>
+      <h1>Purchase Order</h1>
+      <article class="PurchaseOrder" data-order-number="52256">
+         <dl>
+            <dt>Order date</dt>
+            <dd>
+               <time>2016-04-01</time>
+            </dd>
+         </dl>
+         <h2>Purchase Order 52256</h2>
+         <h3>Shipping address</h3>
+         <address data-type="Shipping">John Doe<br>456 Parkway Drive<br>Sydney<br>New South Wales 10150 Australia 
+         </address>
+         <h3>Billing address</h3>
+         <address data-type="Billing">Jane Doe<br>456 Parkway Drive<br>Sydney<br>New South Wales 10150 Australia 
+         </address>
+         <p class="DeliveryNotes">Deliver packages personally.</p>
+         <dl>
+            <dt data-part-number="367-XY">Heroin</dt>
+            <dd class="Quantity">3</dd>
+            <dd class="USPrice">3234.14</dd>
+            <dt data-part-number="221-BC">Chainsaw</dt>
+            <dd class="Quantity">1</dd>
+            <dd class="USPrice">129.95</dd>
+            <dd class="ShipDate">2015-10-12</dd>
+         </dl>
+      </article>
+   </body>
+</html>

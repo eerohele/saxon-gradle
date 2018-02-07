@@ -22,7 +22,7 @@ class SaxonXsltTask extends DefaultTask {
 
     protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
-    Map<String, String> options = [:]
+    Map<String, Object> options = [output: project.buildDir]
     Map<String, String> advancedOptions = [:]
     Map<String, String> parameters
 
@@ -95,7 +95,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void input(Object input) {
-        this.options.input = input
+        this.options.input = project.files(input)
     }
 
     void lineNumbers(Object lineNumbers) {
@@ -107,7 +107,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void output(Object output) {
-        this.options.output = output
+        this.options.output = project.file(output)
     }
 
     void sourceSaxParser(String parser) {
@@ -621,14 +621,23 @@ class SaxonXsltTask extends DefaultTask {
         }
     }
 
-    protected Set<File> getIncludedStylesheets(File stylesheet, Set<File> stylesheets = [].asImmutable() as Set) {
+    protected FileCollection getIncludedStylesheets(File stylesheet, FileCollection stylesheets = project.files()) {
+        if (stylesheet == null) return stylesheets
+
         GPathResult xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
 
-        [stylesheet] + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
+        project.files(stylesheet) + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
             URI href = resolveUri(i.@href[0].toString())
             URI uri = stylesheet.toURI().resolve(href)
             acc + getIncludedStylesheets(new File(uri), acc)
         }
+    }
+
+    String getOutputFileName(File file) {
+        String name = file.getName()
+        String basename = name.substring(0, name.lastIndexOf(PERIOD))
+        String extension = getDefaultOutputExtension()
+        [basename, extension].join(PERIOD)
     }
 
     // Get the default output file name.
@@ -640,33 +649,33 @@ class SaxonXsltTask extends DefaultTask {
     // Would love to use commons-io for this, but I don't really want to because
     // adding into the plugin classpath causes clashes with the Gradle runtime
     // classpath.
-    @OutputFiles
     protected File getOutputFile(File file) {
-        Set<File> inputFiles = project.files(this.options.input).files
-
-        if (inputFiles.size() == 1 && this.options.output) {
-            project.file(this.options.output)
+        if (this.options.input.size() == 1 && project.buildDir.getAbsolutePath() != this.options.output.getAbsolutePath()) {
+            this.options.output
         } else {
-            File outputDir = this.options.output == null ? project.buildDir : project.file(this.options.output)
-            String name = file.getName()
-            String basename = name.substring(0, name.lastIndexOf(PERIOD))
-            String extension = getDefaultOutputExtension()
-            String filename = [basename, extension].join(PERIOD)
-            new File(outputDir, filename)
+            new File(this.options.output, getOutputFileName(file))
         }
     }
 
     @OutputFiles
     FileCollection getOutputFiles() {
-        project.files(inputFiles.collect {
-            getOutputFile(it)
-        })
+        if (this.options.input != null) {
+            project.files(this.options.input.collect { getOutputFile(it) })
+        } else {
+            project.files(this.options.output)
+        }
     }
 
     @InputFiles
     @SkipWhenEmpty
     FileCollection getInputFiles() {
-        project.files(this.options.input, getIncludedStylesheets(this.options.stylesheet))
+        FileCollection stylesheets = getIncludedStylesheets(this.options.stylesheet)
+
+        if (this.options.input != null) {
+            project.files(this.options.input) + stylesheets
+        } else {
+            stylesheets
+        }
     }
 
     // Turn a key-value pair into a Saxon command line argument.
@@ -723,27 +732,26 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     protected List<String> getFileSpecificArguments(File file) {
-        [
-                makeSingleHyphenArgument(Argument.MAPPING.input, file.getPath()),
+        String inputPath = file.getPath()
+        String outputPath = getOutputFile(file).getPath()
 
-                makeSingleHyphenArgument(
-                        Argument.MAPPING.output,
-                        getOutputFile(file).getPath()
-                )
-        ].asImmutable()
+        [makeSingleHyphenArgument(Argument.MAPPING.input, inputPath),
+         makeSingleHyphenArgument(Argument.MAPPING.output, outputPath)].asImmutable()
     }
 
     @TaskAction
     void run() {
         List<String> parameters = getStylesheetParameters()
-        List<String> commonArguments = getCommonArguments()
+        List<String> commonArguments = getCommonArguments() + parameters
 
-        project.files(this.options.input).each {
-            List<String> fileSpecificArguments = getFileSpecificArguments(it)
-
-            List<String> arguments = (
-                    fileSpecificArguments + commonArguments + parameters
-            )
+        if (this.options.input != null) {
+            project.files(this.options.input).each {
+                List<String> arguments = getFileSpecificArguments(it) + commonArguments
+                new Transform().doTransform(arguments as String[], '')
+            }
+        } else {
+            String output = this.options.output.getPath()
+            List<String> arguments = commonArguments + [makeSingleHyphenArgument(Argument.MAPPING.output, output)]
 
             new Transform().doTransform(arguments as String[], '')
         }

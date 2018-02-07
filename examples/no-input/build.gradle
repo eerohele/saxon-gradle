@@ -1,0 +1,11 @@
+plugins {
+    id 'com.github.eerohele.saxon-gradle' version '0.6.0'
+}
+
+defaultTasks 'xslt'
+
+xslt {
+    stylesheet 'xsl/no-input.xsl'
+    initialTemplate 'initial-template'
+    output "${buildDir}/output.xml"
+}
