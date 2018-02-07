@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-# 0.6.0 - 2018-02-08
+# 0.6.0 - 2018-02-07
 - Add support for no-input transformations #11
 
 # 0.5.0 - 2018-02-02
