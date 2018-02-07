@@ -215,6 +215,7 @@ class SaxonXsltTaskSpec extends Specification {
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: input file, default output dir'() {
         setup:
+            project.buildDir.delete()
             project.apply plugin: SaxonPlugin
             project.evaluate()
 
@@ -239,14 +240,12 @@ class SaxonXsltTaskSpec extends Specification {
         and:
             File expectedFile = new File("$examplesDir/simple/exp/input-1.html")
             getNormalizedFileContent(outputFile) == getNormalizedFileContent(expectedFile)
-
-        cleanup:
-            project.buildDir.delete()
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: input file, output file'() {
         setup:
+            project.file("$examplesDir/simple/build").delete()
             project.apply plugin: SaxonPlugin
             project.evaluate()
 
@@ -272,14 +271,12 @@ class SaxonXsltTaskSpec extends Specification {
         and:
             File expectedFile = new File("$examplesDir/simple/exp/input-1.html")
             getNormalizedFileContent(outputFile) == getNormalizedFileContent(expectedFile)
-
-        cleanup:
-            project.file("$examplesDir/simple/build").delete()
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: no input, output file'() {
         setup:
+            project.buildDir.delete()
             project.apply plugin: SaxonPlugin
             project.evaluate()
 
@@ -298,22 +295,26 @@ class SaxonXsltTaskSpec extends Specification {
 
         and:
             getNormalizedFileContent(outputFile) == "<a/>"
-
-        cleanup:
-            project.buildDir.delete()
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: multiple input files, non-default output directory'() {
         setup:
+            project.file("$examplesDir/simple/build").delete()
             project.apply plugin: SaxonPlugin
             project.evaluate()
 
         when:
             project.xslt {
-                stylesheet "$examplesDir/no-input/xsl/no-input.xsl"
                 input project.fileTree(dir: "$examplesDir/simple/xml", include: '*.xml')
                 output "$examplesDir/simple/build/non-default"
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
+
+                parameters(
+                        title: 'Purchase Order',
+                        padding: '0.625rem'
+                )
             }
 
             project.xslt.run()
@@ -329,8 +330,5 @@ class SaxonXsltTaskSpec extends Specification {
             File expectedFile2 = project.file("$examplesDir/simple/exp/input-2.html")
             getNormalizedFileContent(outputFile1) == getNormalizedFileContent(expectedFile1)
             getNormalizedFileContent(outputFile2) == getNormalizedFileContent(expectedFile2)
-
-        cleanup:
-            project.file("$examplesDir/simple/build").delete()
     }
 }
