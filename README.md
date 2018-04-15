@@ -81,5 +81,5 @@ between `// START ADVANCED OPTIONS` and `// END ADVANCED OPTIONS` in
 [gradle-daemon]: https://docs.gradle.org/current/userguide/gradle_daemon.html
 [gradle-file-collections]: https://docs.gradle.org/current/userguide/working_with_files.html#sec:file_collections
 [saxon]: http://saxonica.com/
-[saxon-command-line]: http://www.saxonica.com/html/documentation/using-xsl/commandline.html
+[saxon-command-line]: http://www.saxonica.com/html/documentation/using-xsl/commandline/
 [saxon-config-file]: http://saxonica.com/html/documentation/configuration/configuration-file
