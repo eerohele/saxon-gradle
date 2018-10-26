@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 0.7.0 – 2018-10-26
+- Fix Saxon dependency #16
+
 # 0.6.0 - 2018-02-07
 - Add support for no-input transformations #11
 
