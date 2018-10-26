@@ -20,6 +20,8 @@ dependencies {
     testCompile('org.spockframework:spock-core:1.1-groovy-2.4-rc-3') {
         exclude group: 'org.codehaus.groovy'
     }
+
+    testCompile('org.jsoup:jsoup:1.11.3')
 }
 
 repositories {

@@ -1,6 +1,9 @@
 package com.github.eerohele
 
 import java.nio.file.Files
+import java.nio.file.Paths
+
+import org.jsoup.Jsoup
 
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -24,8 +27,12 @@ class SaxonXsltTaskSpec extends Specification {
         project.configurations.create(XSLT)
     }
 
-    String getNormalizedFileContent(File file) {
-        file.getText('UTF-8').trim().replaceAll('(\\s)+', '$1')
+    String fileAsString(File file) {
+        new String(Files.readAllBytes(Paths.get(file.toURI())))
+    }
+
+    String htmlString(File file) {
+        Jsoup.parse(file, "UTF-8").outerHtml()
     }
 
     Boolean areSameFiles(File file1, File file2) {
@@ -239,7 +246,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         and:
             File expectedFile = new File("$examplesDir/simple/exp/input-1.html")
-            getNormalizedFileContent(outputFile) == getNormalizedFileContent(expectedFile)
+            htmlString(outputFile) == htmlString(expectedFile)
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
@@ -270,7 +277,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         and:
             File expectedFile = new File("$examplesDir/simple/exp/input-1.html")
-            getNormalizedFileContent(outputFile) == getNormalizedFileContent(expectedFile)
+            htmlString(outputFile) == htmlString(expectedFile)
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
@@ -294,7 +301,7 @@ class SaxonXsltTaskSpec extends Specification {
             outputFile.exists()
 
         and:
-            getNormalizedFileContent(outputFile) == "<a/>"
+            fileAsString(outputFile) == "<a/>"
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
@@ -326,9 +333,9 @@ class SaxonXsltTaskSpec extends Specification {
             outputFile2.exists()
 
         and:
-            File expectedFile1 = project.file("$examplesDir/simple/exp/input-1.html")
-            File expectedFile2 = project.file("$examplesDir/simple/exp/input-2.html")
-            getNormalizedFileContent(outputFile1) == getNormalizedFileContent(expectedFile1)
-            getNormalizedFileContent(outputFile2) == getNormalizedFileContent(expectedFile2)
+            File expectedFile1 = project.file("$examplesDir/simple/exp/non-default/input-1.html")
+            File expectedFile2 = project.file("$examplesDir/simple/exp/non-default/input-2.html")
+            htmlString(outputFile1) == htmlString(expectedFile1)
+            htmlString(outputFile2) == htmlString(expectedFile2)
     }
 }
