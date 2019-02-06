@@ -596,7 +596,7 @@ class SaxonXsltTask extends DefaultTask {
         this.advancedOptions.xsltVersion = x;
     }
 
-    // END OPTIONS
+    // END ADVANCED OPTIONS
 
     @SuppressWarnings('ConfusingMethodName')
     void parameters(Map<String, String> parameters) {
