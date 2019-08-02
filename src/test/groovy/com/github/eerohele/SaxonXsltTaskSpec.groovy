@@ -378,4 +378,144 @@ class SaxonXsltTaskSpec extends Specification {
         htmlString(outputFile1) == htmlString(expectedFile1)
         htmlString(outputFile2) == htmlString(expectedFile2)
     }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
+    def 'Running XSLT transformation: setting output file extension, single input file, no output'() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
+
+            xslt {
+                input "$examplesDir/simple/xml/input-1.xml"
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
+    
+                parameters(
+                        title: 'Purchase Order',
+                        padding: '0.625rem'
+                )
+                
+                outputFileExtension 'foo'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
+
+        then:
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        new File(testProjectDir.root, 'build/input-1.foo').exists()
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
+    def 'Running XSLT transformation: setting output file extension, single input file, output (conflict)'() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
+
+            xslt {
+                input "$examplesDir/simple/xml/input-1.xml"
+                output "${testProjectDir.root}/build/output-1.xml"
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
+    
+                parameters(
+                        title: 'Purchase Order',
+                        padding: '0.625rem'
+                )
+                
+                outputFileExtension 'foo'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
+
+        then:
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        new File(testProjectDir.root, 'build/output-1.xml').exists()
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
+    def 'Running XSLT transformation: setting output file extension, multiple input files, no output'() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
+
+            xslt {
+                input project.fileTree(dir: "$examplesDir/simple/xml", include: '*.xml')
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
+    
+                parameters(
+                        title: 'Purchase Order',
+                        padding: '0.625rem'
+                )
+                
+                outputFileExtension 'foo'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
+
+        then:
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        new File(testProjectDir.root, 'build/input-1.foo').exists()
+        new File(testProjectDir.root, 'build/input-2.foo').exists()
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
+    def 'Running XSLT transformation: setting output file extension, multiple input files, output'() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
+
+            xslt {
+                input project.fileTree(dir: "$examplesDir/simple/xml", include: '*.xml')
+                output "${testProjectDir.root}/build/non-default"
+                stylesheet "$examplesDir/simple/xsl/html5.xsl"
+                catalog "$examplesDir/simple/catalog.xml"
+    
+                parameters(
+                        title: 'Purchase Order',
+                        padding: '0.625rem'
+                )
+                
+                outputFileExtension 'foo'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
+
+        then:
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        new File(testProjectDir.root, 'build/non-default/input-1.foo').exists()
+        new File(testProjectDir.root, 'build/non-default/input-2.foo').exists()
+    }
 }

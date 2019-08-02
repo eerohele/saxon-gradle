@@ -138,6 +138,10 @@ class SaxonXsltTask extends DefaultTask {
         this.options.useAssociatedStylesheet = use
     }
 
+    void outputFileExtension(String extension) {
+        this.options.outputFileExtension = extension
+    }
+
     // START ADVANCED OPTIONS
 
     void allowExternalFunctions(Boolean x) {
@@ -603,9 +607,13 @@ class SaxonXsltTask extends DefaultTask {
         this.parameters = parameters
     }
 
-    // Read output file extension from the <xsl:output> element of the
-    // stylesheet.
     protected String getDefaultOutputExtension() {
+        if (this.options.outputFileExtension != null) {
+            return this.options.outputFileExtension
+        }
+
+        // Read output file extension from the <xsl:output> element of the
+        // stylesheet.
         String method = this.xslt.output.@method
         return method ? method : 'xml'
     }
@@ -713,7 +721,7 @@ class SaxonXsltTask extends DefaultTask {
     // and output.
     protected List<String> getCommonArguments() {
         Map<String, String> commonOptions = this.options.findAll { name, value ->
-            !['input', 'output'].contains(name)
+            !['input', 'output', 'outputFileExtension'].contains(name)
         }.asImmutable()
 
         (commonOptions.inject(this.defaultArguments) { arguments, entry ->
