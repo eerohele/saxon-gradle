@@ -35,8 +35,8 @@ test {
     systemProperty 'examples.dir', new File(projectDir, 'examples')
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.5'
+wrapper {
+    gradleVersion = '5.5.1'
 }
 
 codenarc {
