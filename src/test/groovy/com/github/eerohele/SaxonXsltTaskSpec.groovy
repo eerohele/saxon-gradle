@@ -1,5 +1,9 @@
 package com.github.eerohele
 
+import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -7,7 +11,9 @@ import org.jsoup.Jsoup
 
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.testfixtures.ProjectBuilder
+
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
 
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
@@ -20,11 +26,16 @@ class SaxonXsltTaskSpec extends Specification {
 
     String examplesDir
 
+    @Rule
+    final TemporaryFolder testProjectDir = new TemporaryFolder()
+
+    File buildFile
+
     void setup() {
         examplesDir = System.getProperty('examples.dir')
-
         project = ProjectBuilder.builder().withName(XSLT).build()
         project.configurations.create(XSLT)
+        buildFile = testProjectDir.newFile("build.gradle")
     }
 
     String fileAsString(File file) {
@@ -221,13 +232,13 @@ class SaxonXsltTaskSpec extends Specification {
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: input file, default output dir'() {
-        setup:
-            project.buildDir.delete()
-            project.apply plugin: SaxonPlugin
-            project.evaluate()
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
 
-        when:
-            project.xslt {
+            xslt {
                 input "$examplesDir/simple/xml/input-1.xml"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
@@ -237,11 +248,18 @@ class SaxonXsltTaskSpec extends Specification {
                     padding: '0.625rem'
                 )
             }
+        """
 
-            project.xslt.run()
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
 
         then:
-            File outputFile = new File(project.buildDir, 'input-1.html')
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        File outputFile = new File(testProjectDir.root, 'build/input-1.html')
             outputFile.exists()
 
         and:
@@ -251,15 +269,16 @@ class SaxonXsltTaskSpec extends Specification {
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: input file, output file'() {
-        setup:
-            project.file("$examplesDir/simple/build").delete()
-            project.apply plugin: SaxonPlugin
-            project.evaluate()
+        given:
 
-        when:
-            project.xslt {
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
+
+            xslt {
                 input "$examplesDir/simple/xml/input-1.xml"
-                output "$examplesDir/simple/build/output-1.html"
+                output "${testProjectDir.root}/output-1.html"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
 
@@ -268,11 +287,18 @@ class SaxonXsltTaskSpec extends Specification {
                         padding: '0.625rem'
                 )
             }
+        """
 
-            project.xslt.run()
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
 
         then:
-            File outputFile = new File("$examplesDir/simple/build/output-1.html")
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        File outputFile = new File("${testProjectDir.root}/output-1.html")
             outputFile.exists()
 
         and:
@@ -282,22 +308,29 @@ class SaxonXsltTaskSpec extends Specification {
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: no input, output file'() {
-        setup:
-            project.buildDir.delete()
-            project.apply plugin: SaxonPlugin
-            project.evaluate()
-
-        when:
-            project.xslt {
-                stylesheet "$examplesDir/no-input/xsl/no-input.xsl"
-                output "${project.buildDir}/output.xml"
-                initialTemplate 'initial-template'
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
             }
 
-            project.xslt.run()
+            xslt {
+                stylesheet "$examplesDir/no-input/xsl/no-input.xsl"
+                output "${testProjectDir.root}/output.xml"
+                initialTemplate 'initial-template'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
 
         then:
-            File outputFile = new File(project.buildDir, 'output.xml')
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        File outputFile = new File(testProjectDir.root, 'output.xml')
             outputFile.exists()
 
         and:
@@ -306,15 +339,15 @@ class SaxonXsltTaskSpec extends Specification {
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
     def 'Running XSLT transformation: multiple input files, non-default output directory'() {
-        setup:
-            project.file("$examplesDir/simple/build").delete()
-            project.apply plugin: SaxonPlugin
-            project.evaluate()
+        given:
+        buildFile << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
 
-        when:
-            project.xslt {
+            xslt {
                 input project.fileTree(dir: "$examplesDir/simple/xml", include: '*.xml')
-                output "$examplesDir/simple/build/non-default"
+                output "${testProjectDir.root}/non-default"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
 
@@ -323,18 +356,25 @@ class SaxonXsltTaskSpec extends Specification {
                         padding: '0.625rem'
                 )
             }
+        """
 
-            project.xslt.run()
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(':xslt')
+                .build()
 
         then:
-            File outputFile1 = project.file("$examplesDir/simple/build/non-default/input-1.html")
-            File outputFile2 = project.file("$examplesDir/simple/build/non-default/input-2.html")
+        result.task(":xslt").outcome == TaskOutcome.SUCCESS
+        File outputFile1 = new File("${testProjectDir.root}/non-default/input-1.html")
+        File outputFile2 = new File("${testProjectDir.root}/non-default/input-2.html")
             outputFile1.exists()
             outputFile2.exists()
 
         and:
-            File expectedFile1 = project.file("$examplesDir/simple/exp/non-default/input-1.html")
-            File expectedFile2 = project.file("$examplesDir/simple/exp/non-default/input-2.html")
+        File expectedFile1 = new File("$examplesDir/simple/exp/non-default/input-1.html")
+        File expectedFile2 = new File("$examplesDir/simple/exp/non-default/input-2.html")
             htmlString(outputFile1) == htmlString(expectedFile1)
             htmlString(outputFile2) == htmlString(expectedFile2)
     }

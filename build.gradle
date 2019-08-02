@@ -1,5 +1,6 @@
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.9'
+    id 'java-gradle-plugin'
 }
 
 apply plugin: 'com.gradle.plugin-publish'
@@ -22,6 +23,8 @@ dependencies {
     }
 
     testCompile('org.jsoup:jsoup:1.11.3')
+
+    testImplementation gradleTestKit()
 }
 
 repositories {
