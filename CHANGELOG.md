@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 0.8.0 – 2019–08-02
+- Add support for outputFileExtension property #6
+
 # 0.7.0 – 2018-10-26
 - Fix Saxon dependency #16
 
