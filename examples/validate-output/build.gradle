@@ -1,6 +1,4 @@
 plugins {
-    // This is a dummy version number — use the actual latest version number
-    // instead.
     id 'com.github.eerohele.saxon-gradle' version '1.0-SNAPSHOT'
 }
 
@@ -9,16 +7,13 @@ defaultTasks 'xslt'
 xslt {
     stylesheet 'xsl/html5.xsl'
 
-    // Transform every .xml file in the xml directory.
     input fileTree(dir: 'xml', include: '*.xml')
 
-    // Set XSLT parameters.
     parameters(
         title: 'Purchase Order',
         padding: '0.625rem'
     )
 
-    // Set Saxon configuration file
     config 'config/configuration.xml'
 
     catalog 'catalog.xml'
