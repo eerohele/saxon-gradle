@@ -1,8 +1,10 @@
 package com.github.eerohele
 
 import groovy.util.slurpersupport.GPathResult
-
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
@@ -13,7 +15,10 @@ import org.gradle.api.InvalidUserDataException
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
 
-import net.sf.saxon.Transform
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
+
+import javax.inject.Inject
 
 @SuppressWarnings('MethodCount')
 class SaxonXsltTask extends DefaultTask {
@@ -22,14 +27,19 @@ class SaxonXsltTask extends DefaultTask {
 
     protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
-    Map<String, Object> options = [output: project.buildDir]
-    Map<String, String> advancedOptions = [:]
-    Map<String, String> parameters
+    protected final Map<String, Object> options = [output: project.buildDir]
 
-    protected XmlSlurper xmlSlurper = new XmlSlurper()
-    protected GPathResult xslt
-    protected Catalog xmlCatalog
-    CatalogManager catalogManager = new CatalogManager()
+    @Classpath
+    final ConfigurableFileCollection classpath
+
+    protected final Map<String, String> advancedOptions = [:]
+
+    protected Map<String, String> stylesheetParams = [:]
+
+    private final XmlSlurper xmlSlurper = new XmlSlurper()
+    private GPathResult xslt
+    private Catalog xmlCatalog
+    private final CatalogManager catalogManager = new CatalogManager()
 
     // Saxon command-line options take 'on' and 'off', but it's best to let the
     // users use booleans as well.
@@ -44,7 +54,13 @@ class SaxonXsltTask extends DefaultTask {
             'false': 'off'
     ]
 
-    SaxonXsltTask() {
+    private final WorkerExecutor workerExecutor
+
+    @Inject
+    SaxonXsltTask(WorkerExecutor workerExecutor) {
+        super()
+        this.workerExecutor = workerExecutor
+        this.classpath = project.objects.fileCollection()
         xmlSlurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
         xmlSlurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
         catalogManager.setIgnoreMissingProperties(true)
@@ -602,11 +618,11 @@ class SaxonXsltTask extends DefaultTask {
 
     // END ADVANCED OPTIONS
 
-    @SuppressWarnings('ConfusingMethodName')
     void parameters(Map<String, String> parameters) {
-        this.parameters = parameters
+        this.stylesheetParams = parameters
     }
 
+    @Internal
     protected String getDefaultOutputExtension() {
         if (this.options.outputFileExtension != null) {
             return this.options.outputFileExtension
@@ -711,14 +727,16 @@ class SaxonXsltTask extends DefaultTask {
     // pairs, which is what Saxon understands.
     //
     // TODO: Investigate how to improve support for XPath data types.
+    @Internal
     protected List<String> getStylesheetParameters() {
-        this.parameters.collect { name, value ->
+        this.stylesheetParams.collect { name, value ->
             [name, value].join('=')
         }.asImmutable()
     }
 
     // Set options common to all transformations: everything except input
     // and output.
+    @Internal
     protected List<String> getCommonArguments() {
         Map<String, String> commonOptions = this.options.findAll { name, value ->
             !['input', 'output', 'outputFileExtension'].contains(name)
@@ -749,19 +767,27 @@ class SaxonXsltTask extends DefaultTask {
 
     @TaskAction
     void run() {
-        List<String> parameters = getStylesheetParameters()
-        List<String> commonArguments = getCommonArguments() + parameters
+        WorkQueue workQueue = workerExecutor.classLoaderIsolation() {
+            it.getClasspath().from(this.classpath);
+        };
+
+        List<String> commonArguments = getCommonArguments() + getStylesheetParameters()
 
         if (this.options.input != null) {
             project.files(this.options.input).each {
                 List<String> arguments = getFileSpecificArguments(it) + commonArguments
-                new Transform().doTransform(arguments as String[], '')
+
+                workQueue.submit(XsltTransformation) {
+                    it.arguments.set(arguments)
+                }
             }
         } else {
             String output = this.options.output.getPath()
             List<String> arguments = commonArguments + [makeSingleHyphenArgument(Argument.MAPPING.output, output)]
 
-            new Transform().doTransform(arguments as String[], '')
+            workQueue.submit(XsltTransformation) {
+                it.arguments.set(arguments)
+            }
         }
     }
 }
