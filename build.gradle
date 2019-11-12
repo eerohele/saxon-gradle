@@ -1,17 +1,13 @@
 plugins {
-    id 'com.gradle.plugin-publish' version '0.9.9'
+    id 'groovy'
+    id 'codenarc'
+    id 'com.gradle.plugin-publish' version '0.10.1'
     id 'java-gradle-plugin'
+    id 'se.patrikerdes.use-latest-versions' version '0.2.13'
+    id 'com.github.ben-manes.versions' version '0.27.0'
 }
 
-apply plugin: 'com.gradle.plugin-publish'
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'codenarc'
-
-allprojects {
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
-}
+sourceCompatibility = 1.8
 
 dependencies {
     compile gradleApi()
@@ -52,11 +48,15 @@ pluginBundle {
     vcsUrl = 'https://github.com/eerohele/saxon-gradle.git'
     description = 'A Gradle plugin for running Saxon'
     tags = ['saxon', 'xslt', 'documentation']
+}
 
+gradlePlugin {
     plugins {
         SaxonPlugin {
             id = 'com.github.eerohele.saxon-gradle'
             displayName = 'Saxon Gradle Plugin'
+            implementationClass = 'com.github.eerohele.SaxonPlugin'
+            description = 'A Gradle plugin for running XSLT transformations with Saxon'
         }
     }
 }
