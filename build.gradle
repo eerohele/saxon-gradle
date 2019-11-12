@@ -10,9 +10,9 @@ plugins {
 sourceCompatibility = 1.8
 
 dependencies {
-    compile gradleApi()
-    compile 'net.sf.saxon:Saxon-HE:9.8.0-14'
-    compile 'xml-resolver:xml-resolver:1.2'
+    implementation gradleApi()
+    implementation 'net.sf.saxon:Saxon-HE:9.8.0-14'
+    implementation 'xml-resolver:xml-resolver:1.2'
 
     testCompile('org.spockframework:spock-core:1.3-groovy-2.5') {
         exclude group: 'org.codehaus.groovy'
