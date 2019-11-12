@@ -1,4 +1,4 @@
-Saxon Gradle Plugin [![Build Status](https://travis-ci.org/eerohele/saxon-gradle.svg?branch=master)](https://travis-ci.org/eerohele/saxon-gradle)
+Saxon Gradle Plugin
 ===================
 
 A plugin for running [Saxon][saxon] from [Gradle][gradle].
