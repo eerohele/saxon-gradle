@@ -9,7 +9,9 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.eerohele.saxon-gradle' version '0.7.0'
+    // This is a dummy version number — use the actual latest version number
+    // instead.
+    id 'com.github.eerohele.saxon-gradle' version '1.0-SNAPSHOT'
 }
 
 defaultTasks 'xslt'
