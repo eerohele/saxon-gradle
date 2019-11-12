@@ -1,0 +1,42 @@
+// See the 'simple' example for explanations of some of the common options.
+
+plugins {
+    id 'com.github.eerohele.saxon-gradle' version '1.0-SNAPSHOT'
+}
+
+defaultTasks 'xslt'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    saxon
+}
+
+dependencies {
+    // Always use the latest released Saxon version instead of whatever comes
+    // bundled with the plugin.
+    //
+    // You can of course always use a specific version, too.
+    //
+    // For example, to use 9.9.1-5, you'd do:
+    //
+    // saxon 'net.sf.saxon:Saxon-HE:9.9.1-5'
+    saxon 'net.sf.saxon:Saxon-HE:+'
+}
+
+xslt {
+    classpath.from(configurations.saxon)
+
+    stylesheet 'xsl/html5.xsl'
+
+    input fileTree(dir: 'xml', include: '*.xml')
+
+    parameters(
+        title: 'Purchase Order',
+        padding: '0.625rem'
+    )
+
+    catalog 'catalog.xml'
+}
