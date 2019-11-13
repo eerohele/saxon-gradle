@@ -18,8 +18,6 @@ dependencies {
         exclude group: 'org.codehaus.groovy'
     }
 
-    testCompile('org.jsoup:jsoup:1.12.1')
-
     testImplementation gradleTestKit()
 }
 
@@ -31,8 +29,6 @@ group = 'com.github.eerohele'
 version = '0.8.0'
 
 test {
-    systemProperty 'examples.dir', new File(projectDir, 'examples')
-
     testLogging {
         showStandardStreams = true
         exceptionFormat = 'full'
