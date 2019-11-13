@@ -23,6 +23,10 @@ class SaxonXsltTaskSpec extends Specification {
     File xml2
     File config
 
+    String unixPath(File file) {
+        file.getPath().replace('\\', '/')
+    }
+
     @SuppressWarnings(['DuplicateStringLiteral'])
     void setup() {
         gradle = testProjectDir.newFile('build.gradle')
@@ -34,7 +38,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         config = testProjectDir.newFile('saxon-config.xml')
 
-        outputDir = testProjectDir.newFolder('build').path.replace(File.separator, '/')
+        outputDir = testProjectDir.newFolder('build')
     }
 
     String fileAsString(File file) {
@@ -43,6 +47,10 @@ class SaxonXsltTaskSpec extends Specification {
 
     File outputFile(String path) {
         new File(outputDir, path)
+    }
+
+    String outputPath(String path) {
+        unixPath(outputFile(path))
     }
 
     private BuildResult execute() {
@@ -75,8 +83,8 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '$xml1'
-            stylesheet '$xslt'
+            input '${unixPath(xml1)}'
+            stylesheet '${unixPath(xslt)}'
         }
         """
 
@@ -109,9 +117,9 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input file('$xml1')
-                output '${outputFile('xml1.xml')}'
-                stylesheet '$xslt'
+                input file('${unixPath(xml1)}')
+                output '${outputPath('xml1.xml')}'
+                stylesheet '${unixPath(xslt)}'
             }
         """
 
@@ -149,8 +157,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input files('$xml1', '$xml2')
-                stylesheet '$xslt'
+                input files('${unixPath(xml1)}', '${unixPath(xml2)}')
+                stylesheet '${unixPath(xslt)}'
             }
         """
 
@@ -184,9 +192,9 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '$xml1'
-                output '${outputFile('non-default/my-awesome-output.xml')}'
-                stylesheet '$xslt'
+                input '${unixPath(xml1)}'
+                output '${outputPath('non-default/my-awesome-output.xml')}'
+                stylesheet '${unixPath(xslt)}'
             }
         """
 
@@ -219,9 +227,9 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '$xml1'
-            output file('${outputFile('non-default/my-awesome-output.xml')}')
-            stylesheet '$xslt'
+            input '${unixPath(xml1)}'
+            output file('${outputPath('non-default/my-awesome-output.xml')}')
+            stylesheet '${unixPath(xslt)}'
         }
         """
 
@@ -260,8 +268,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '$xml1'
-                stylesheet '$xslt'
+                input '${unixPath(xml1)}'
+                stylesheet '${unixPath(xslt)}'
                 config '$config'
             }
         """
@@ -299,8 +307,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '$xml1'
-                stylesheet '$xslt'
+                input '${unixPath(xml1)}'
+                stylesheet '${unixPath(xslt)}'
             }
         """
 
@@ -365,8 +373,8 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '$xml1'
-            stylesheet '$xslt'
+            input '${unixPath(xml1)}'
+            stylesheet '${unixPath(xslt)}'
             initialMode 'foo'
         }
         """
@@ -400,8 +408,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '$xml1'
-                stylesheet '$xslt'
+                input '${unixPath(xml1)}'
+                stylesheet '${unixPath(xslt)}'
             }
         """
 
@@ -446,8 +454,8 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '$xml1'
-            stylesheet '$xslt'
+            input '${unixPath(xml1)}'
+            stylesheet '${unixPath(xslt)}'
             parameters(
                 'foo': 'bar'
             )
@@ -481,8 +489,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
 
             xslt {
-                stylesheet '$xslt'
-                output '${outputFile('output.xml')}'
+                stylesheet '${unixPath(xslt)}'
+                output '${outputPath('output.xml')}'
                 initialTemplate 'initial-template'
             }
         """
@@ -521,8 +529,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '$xml1'
-                stylesheet '$xslt'
+                input '${unixPath(xml1)}'
+                stylesheet '${unixPath(xslt)}'
                 outputFileExtension 'foo'
             }
         """
@@ -556,10 +564,10 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '$xml1'
-                output '${outputFile('output.xml')}'
+                input '${unixPath(xml1)}'
+                output '${outputPath('output.xml')}'
                 outputFileExtension 'foo'
-                stylesheet '$xslt'
+                stylesheet '${unixPath(xslt)}'
             }
         """
 
@@ -597,9 +605,9 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input files('$xml1', '$xml2')
+            input files('${unixPath(xml1)}', '${unixPath(xml2)}')
             outputFileExtension 'foo'
-            stylesheet '$xslt'
+            stylesheet '${unixPath(xslt)}'
         }
         """
 
@@ -638,10 +646,10 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input files('$xml1', '$xml2')
-                output '${outputFile('non-default')}'
+                input files('${unixPath(xml1)}', '${unixPath(xml2)}')
+                output '${outputPath('non-default')}'
                 outputFileExtension 'foo'
-                stylesheet '$xslt'
+                stylesheet '${unixPath(xslt)}'
             }
         """
 

@@ -6,11 +6,28 @@ A plugin for running [Saxon][saxon] from [Gradle][gradle].
 ## Example
 
 ```groovy
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    saxon
+}
+
+dependencies {
+    // Use Saxon-HE 9.9.1-5 instead of the Saxon-HE version that comes with the
+    // plugin. 
+    saxon 'net.sf.saxon:Saxon-HE:9.9.1-5'
+}
+
 plugins {
     id 'com.github.eerohele.saxon-gradle' version '0.7.0'
 }
 
 xslt {
+    // Use the Saxon version you specified in the "dependencies" block.
+    classpath.from(configurations.saxon)
+
     stylesheet 'stylesheet.xsl'
 
     // Transform every .xml file in the "input" directory.
