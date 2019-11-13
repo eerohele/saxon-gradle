@@ -29,13 +29,16 @@ class SaxonXsltTaskSpec extends Specification {
     @Rule
     final TemporaryFolder testProjectDir = new TemporaryFolder()
 
+    String defaultOutputDir
+
     File buildFile
 
     void setup() {
-        examplesDir = System.getProperty('examples.dir').replace('\\', '/')
+        examplesDir = System.getProperty('examples.dir').replace(File.separator, '/')
         project = ProjectBuilder.builder().withName(XSLT).build()
         project.configurations.create(XSLT)
         buildFile = testProjectDir.newFile("build.gradle")
+        defaultOutputDir = testProjectDir.root.path.replace(File.separator, '/')
     }
 
     String fileAsString(File file) {
@@ -279,7 +282,7 @@ class SaxonXsltTaskSpec extends Specification {
 
             xslt {
                 input "$examplesDir/simple/xml/input-1.xml"
-                output "${testProjectDir.root}/output-1.html"
+                output "$defaultOutputDir/output-1.html"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
 
@@ -300,7 +303,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(":xslt").outcome == TaskOutcome.SUCCESS
-        File outputFile = new File("${testProjectDir.root}/output-1.html")
+        File outputFile = new File("$defaultOutputDir/output-1.html")
         outputFile.exists()
 
         and:
@@ -318,7 +321,7 @@ class SaxonXsltTaskSpec extends Specification {
 
             xslt {
                 stylesheet "$examplesDir/no-input/xsl/no-input.xsl"
-                output "${testProjectDir.root}/output.xml"
+                output "$defaultOutputDir/output.xml"
                 initialTemplate 'initial-template'
             }
         """
@@ -350,7 +353,7 @@ class SaxonXsltTaskSpec extends Specification {
 
             xslt {
                 input project.fileTree(dir: "$examplesDir/simple/xml", include: '*.xml')
-                output "${testProjectDir.root}/non-default"
+                output "$defaultOutputDir/non-default"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
     
@@ -371,8 +374,8 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(":xslt").outcome == TaskOutcome.SUCCESS
-        File outputFile1 = new File("${testProjectDir.root}/non-default/input-1.html")
-        File outputFile2 = new File("${testProjectDir.root}/non-default/input-2.html")
+        File outputFile1 = new File("$defaultOutputDir/non-default/input-1.html")
+        File outputFile2 = new File("$defaultOutputDir/non-default/input-2.html")
         outputFile1.exists()
         outputFile2.exists()
 
@@ -428,7 +431,7 @@ class SaxonXsltTaskSpec extends Specification {
 
             xslt {
                 input "$examplesDir/simple/xml/input-1.xml"
-                output "${testProjectDir.root}/build/output-1.xml"
+                output "$defaultOutputDir/build/output-1.xml"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
     
@@ -500,7 +503,7 @@ class SaxonXsltTaskSpec extends Specification {
 
             xslt {
                 input project.fileTree(dir: "$examplesDir/simple/xml", include: '*.xml')
-                output "${testProjectDir.root}/build/non-default"
+                output "$defaultOutputDir/build/non-default"
                 stylesheet "$examplesDir/simple/xsl/html5.xsl"
                 catalog "$examplesDir/simple/catalog.xml"
     
