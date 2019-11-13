@@ -255,6 +255,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -294,6 +295,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -326,6 +328,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -363,6 +366,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -406,6 +410,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -441,6 +446,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -475,6 +481,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
@@ -511,6 +518,7 @@ class SaxonXsltTaskSpec extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(':xslt')
+                .forwardOutput()
                 .build()
 
         then:
