@@ -270,7 +270,7 @@ class SaxonXsltTaskSpec extends Specification {
             xslt {
                 input '${unixPath(xml1)}'
                 stylesheet '${unixPath(xslt)}'
-                config '$config'
+                config '${unixPath(config)}'
             }
         """
 
