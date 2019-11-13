@@ -32,7 +32,7 @@ class SaxonXsltTaskSpec extends Specification {
     File buildFile
 
     void setup() {
-        examplesDir = System.getProperty('examples.dir')
+        examplesDir = System.getProperty('examples.dir').replace('\\', '/')
         project = ProjectBuilder.builder().withName(XSLT).build()
         project.configurations.create(XSLT)
         buildFile = testProjectDir.newFile("build.gradle")
