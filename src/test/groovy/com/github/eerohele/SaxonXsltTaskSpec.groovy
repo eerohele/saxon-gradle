@@ -5,7 +5,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 
 import org.gradle.testkit.runner.GradleRunner
@@ -16,7 +15,7 @@ class SaxonXsltTaskSpec extends Specification {
     @Rule
     final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    File outputDir
+    String outputDir
 
     File gradle
     File xslt
@@ -35,19 +34,15 @@ class SaxonXsltTaskSpec extends Specification {
 
         config = testProjectDir.newFile('saxon-config.xml')
 
-        outputDir = testProjectDir.newFolder('build')
+        outputDir = testProjectDir.newFolder('build').path.replace(File.separator, '/')
     }
 
     String fileAsString(File file) {
         new String(Files.readAllBytes(Paths.get(file.toURI())))
     }
 
-    String fileAsString(Path path) {
-        fileAsString(path.toFile())
-    }
-
-    Path outputPath(String path) {
-        Paths.get(outputDir.getPath(), path)
+    File outputFile(String path) {
+        new File(outputDir, path)
     }
 
     private BuildResult execute() {
@@ -80,8 +75,8 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '${xml1.toPath()}'
-            stylesheet '${xslt.toPath()}'
+            input '$xml1'
+            stylesheet '$xslt'
         }
         """
 
@@ -90,7 +85,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -114,9 +109,9 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input file('${xml1.toPath()}')
-                output '${outputPath('xml1.xml')}'
-                stylesheet '${xslt.toPath()}'
+                input file('$xml1')
+                output '${outputFile('xml1.xml')}'
+                stylesheet '$xslt'
             }
         """
 
@@ -125,7 +120,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -154,8 +149,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input files('${xml1.toPath()}', '${xml2.toPath()}')
-                stylesheet '${xslt.toPath()}'
+                input files('$xml1', '$xml2')
+                stylesheet '$xslt'
             }
         """
 
@@ -164,8 +159,8 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
-        fileAsString(outputPath('xml2.xml')).equals('<c/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml2.xml')).equals('<c/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -189,9 +184,9 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '${xml1.toPath()}'
-                output '${outputPath('non-default/my-awesome-output.xml')}'
-                stylesheet '${xslt.toPath()}'
+                input '$xml1'
+                output '${outputFile('non-default/my-awesome-output.xml')}'
+                stylesheet '$xslt'
             }
         """
 
@@ -200,7 +195,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('non-default/my-awesome-output.xml')).equals('<b/>')
+        fileAsString(outputFile('non-default/my-awesome-output.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -224,9 +219,9 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '${xml1.toPath()}'
-            output file('${outputPath('non-default/my-awesome-output.xml')}')
-            stylesheet '${xslt.toPath()}'
+            input '$xml1'
+            output file('${outputFile('non-default/my-awesome-output.xml')}')
+            stylesheet '$xslt'
         }
         """
 
@@ -235,7 +230,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('non-default/my-awesome-output.xml')).equals('<b/>')
+        fileAsString(outputFile('non-default/my-awesome-output.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -265,8 +260,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '${xml1.toPath()}'
-                stylesheet '${xslt.toPath()}'
+                input '$xml1'
+                stylesheet '$xslt'
                 config '$config'
             }
         """
@@ -276,7 +271,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
@@ -304,8 +299,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '${xml1.toPath()}'
-                stylesheet '${xslt.toPath()}'
+                input '$xml1'
+                stylesheet '$xslt'
             }
         """
 
@@ -319,7 +314,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result1.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
 
         when:
         def result2 = GradleRunner.create()
@@ -331,7 +326,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result2.task(':xslt').outcome == TaskOutcome.UP_TO_DATE
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
 
         when:
         xml1.write '''<b/>'''
@@ -346,7 +341,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result3.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<c/>')
+        fileAsString(outputFile('xml1.xml')).equals('<c/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -370,8 +365,8 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '${xml1.toPath()}'
-            stylesheet '${xslt.toPath()}'
+            input '$xml1'
+            stylesheet '$xslt'
             initialMode 'foo'
         }
         """
@@ -381,7 +376,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('xml1.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -405,8 +400,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '${xml1.toPath()}'
-                stylesheet '${xslt.toPath()}'
+                input '$xml1'
+                stylesheet '$xslt'
             }
         """
 
@@ -415,7 +410,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.html')).equals("<b></b>")
+        fileAsString(outputFile('xml1.html')).equals("<b></b>")
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -451,8 +446,8 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input '${xml1.toPath()}'
-            stylesheet '${xslt.toPath()}'
+            input '$xml1'
+            stylesheet '$xslt'
             parameters(
                 'foo': 'bar'
             )
@@ -464,7 +459,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.xml')).equals('<b>bar</b>')
+        fileAsString(outputFile('xml1.xml')).equals('<b>bar</b>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral', 'DuplicateMapLiteral'])
@@ -486,8 +481,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
 
             xslt {
-                stylesheet '${xslt.toPath()}'
-                output '${outputPath('output.xml')}'
+                stylesheet '$xslt'
+                output '${outputFile('output.xml')}'
                 initialTemplate 'initial-template'
             }
         """
@@ -502,7 +497,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('output.xml')).equals("<b/>")
+        fileAsString(outputFile('output.xml')).equals("<b/>")
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -526,8 +521,8 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '${xml1.toPath()}'
-                stylesheet '${xslt.toPath()}'
+                input '$xml1'
+                stylesheet '$xslt'
                 outputFileExtension 'foo'
             }
         """
@@ -537,7 +532,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.foo')).equals('<b/>')
+        fileAsString(outputFile('xml1.foo')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -561,10 +556,10 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input '${xml1.toPath()}'
-                output '${outputPath('output.xml')}'
+                input '$xml1'
+                output '${outputFile('output.xml')}'
                 outputFileExtension 'foo'
-                stylesheet '${xslt.toPath()}'
+                stylesheet '$xslt'
             }
         """
 
@@ -573,7 +568,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('output.xml')).equals('<b/>')
+        fileAsString(outputFile('output.xml')).equals('<b/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -602,9 +597,9 @@ class SaxonXsltTaskSpec extends Specification {
         }
 
         xslt {
-            input files('${xml1.toPath()}', '${xml2.toPath()}')
+            input files('$xml1', '$xml2')
             outputFileExtension 'foo'
-            stylesheet '${xslt.toPath()}'
+            stylesheet '$xslt'
         }
         """
 
@@ -613,8 +608,8 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('xml1.foo')).equals('<b/>')
-        fileAsString(outputPath('xml2.foo')).equals('<c/>')
+        fileAsString(outputFile('xml1.foo')).equals('<b/>')
+        fileAsString(outputFile('xml2.foo')).equals('<c/>')
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
@@ -643,10 +638,10 @@ class SaxonXsltTaskSpec extends Specification {
             }
     
             xslt {
-                input files('${xml1.toPath()}', '${xml2.toPath()}')
-                output '${outputPath('non-default')}'
+                input files('$xml1', '$xml2')
+                output '${outputFile('non-default')}'
                 outputFileExtension 'foo'
-                stylesheet '${xslt.toPath()}'
+                stylesheet '$xslt'
             }
         """
 
@@ -655,7 +650,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputPath('non-default/xml1.foo')).equals('<b/>')
-        fileAsString(outputPath('non-default/xml2.foo')).equals('<c/>')
+        fileAsString(outputFile('non-default/xml1.foo')).equals('<b/>')
+        fileAsString(outputFile('non-default/xml2.foo')).equals('<c/>')
     }
 }
