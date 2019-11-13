@@ -33,6 +33,7 @@ class SaxonXsltTaskSpec extends Specification {
 
     File buildFile
 
+    @SuppressWarnings(['DuplicateStringLiteral'])
     void setup() {
         examplesDir = System.getProperty('examples.dir').replace(File.separator, '/')
         project = ProjectBuilder.builder().withName(XSLT).build()
