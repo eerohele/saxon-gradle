@@ -56,7 +56,7 @@ See the `examples` directory in this repository for additional examples.
 - Rapid XSLT development via Gradle's `--continuous` option: automatically
   run your stylesheet every time it or your input file changes.
 - Transform Gradle [file collections][gradle-file-collections].
-- Use XSLT 3.0 via Saxon-HE 9.8.
+- Use XSLT 3.0 via Saxon-HE 9.8 (or any subsequent Saxon version you need).
 
 ## Options
 
