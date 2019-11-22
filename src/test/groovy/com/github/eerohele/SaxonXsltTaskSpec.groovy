@@ -12,10 +12,12 @@ import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Specification
 
 class SaxonXsltTaskSpec extends Specification {
-    @Rule
-    final TemporaryFolder testProjectDir = new TemporaryFolder()
+    File systemTempDir = new File(new File(System.getProperty("java.io.tmpdir")).getCanonicalPath())
 
-    String outputDir
+    @Rule
+    final TemporaryFolder testProjectDir = new TemporaryFolder(systemTempDir)
+
+    File outputDir
 
     File gradle
     File xslt
@@ -660,5 +662,46 @@ class SaxonXsltTaskSpec extends Specification {
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
         fileAsString(outputFile('non-default/xml1.foo')).equals('<b/>')
         fileAsString(outputFile('non-default/xml2.foo')).equals('<c/>')
+    }
+
+    @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
+    def 'Nested output directory layout: input under base directory'() {
+        given:
+        xslt << '''
+            <xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                <xsl:output omit-xml-declaration="yes"/>
+
+                <xsl:template match="a">
+                    <b/>
+                </xsl:template>
+
+                <xsl:template match="b">
+                    <c/>
+                </xsl:template>
+            </xsl:stylesheet>
+        '''
+
+        xml1 << '''<a/>'''
+        xml2 << '''<b/>'''
+
+        gradle << """
+            plugins {
+                id 'com.github.eerohele.saxon-gradle'
+            }
+
+            xslt {
+                input files('${unixPath(xml1)}', '${unixPath(xml2)}')
+                stylesheet '${unixPath(xslt)}'
+                outputDirectoryLayout 'nested'
+            }
+        """
+
+        when:
+        def result = execute()
+
+        then:
+        result.task(':xslt').outcome == TaskOutcome.SUCCESS
+        fileAsString(outputFile('input/xml1.xml')).equals('<b/>')
+        fileAsString(outputFile('input/xml2.xml')).equals('<c/>')
     }
 }

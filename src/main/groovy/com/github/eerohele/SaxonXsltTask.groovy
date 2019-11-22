@@ -19,6 +19,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 
 import javax.inject.Inject
+import java.nio.file.Path
 
 @SuppressWarnings('MethodCount')
 class SaxonXsltTask extends DefaultTask {
@@ -28,6 +29,8 @@ class SaxonXsltTask extends DefaultTask {
     protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
     protected final Map<String, Object> options = [output: project.buildDir]
+
+    protected final Map<String, Object> pluginOptions = [outputDirectoryLayout: 'flat']
 
     @Classpath
     final ConfigurableFileCollection classpath
@@ -111,7 +114,7 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void input(Object input) {
-        this.options.input = project.files(input)
+        this.options.input = input
     }
 
     void lineNumbers(Object lineNumbers) {
@@ -155,7 +158,11 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     void outputFileExtension(String extension) {
-        this.options.outputFileExtension = extension
+        this.pluginOptions.outputFileExtension = extension
+    }
+
+    void outputDirectoryLayout(String layout) {
+        this.pluginOptions.outputDirectoryLayout = layout
     }
 
     // START ADVANCED OPTIONS
@@ -624,8 +631,8 @@ class SaxonXsltTask extends DefaultTask {
 
     @Internal
     protected String getDefaultOutputExtension() {
-        if (this.options.outputFileExtension != null) {
-            return this.options.outputFileExtension
+        if (this.pluginOptions.outputFileExtension != null) {
+            return this.pluginOptions.outputFileExtension
         }
 
         // Read output file extension from the <xsl:output> element of the
@@ -674,7 +681,28 @@ class SaxonXsltTask extends DefaultTask {
     // adding into the plugin classpath causes clashes with the Gradle runtime
     // classpath.
     protected File getOutputFile(File file) {
-        if (this.options.input.size() == 1 && project.buildDir.getAbsolutePath() != this.options.output.getAbsolutePath()) {
+        Path filePath = file.toPath()
+        Path rootPath = project.rootDir.toPath()
+        Path outputPath = project.file(this.options.output).toPath()
+
+        if (this.pluginOptions.outputDirectoryLayout == 'nested' && filePath.startsWith(rootPath) && outputPath.startsWith(rootPath)) {
+            Path dir = rootPath.relativize(filePath).parent
+            outputPath.resolve(dir).resolve(getOutputFileName(file)).toFile()
+
+            // Using outputDirectoryLayout == 'nested' in scenarios where the
+            // input or output path is *not* under the project base directory is
+            // currently undefined behavior. I currently don't have the time to
+            // enumerate all the edge cases, of which there are numerous.
+            //
+            // Similarly, this approach likely won't work with symlinks, because
+            // to resolve symlinks, we would need to call .toRealPath(), but
+            // that presumes that the target file or directory exists, which
+            // is often not necessarily the case with this plugin. Another thing
+            // I don't have the time to figure out.
+            //
+            // Anyway, this approach likely covers a large chunk of how people
+            // would conceivably use this feature anyway.
+        } else if (project.files(this.options.input).size() == 1 && project.buildDir.getAbsolutePath() != this.options.output.getAbsolutePath()) {
             this.options.output
         } else {
             new File(this.options.output, getOutputFileName(file))
@@ -684,7 +712,7 @@ class SaxonXsltTask extends DefaultTask {
     @OutputFiles
     FileCollection getOutputFiles() {
         if (this.options.input != null) {
-            project.files(this.options.input.collect { getOutputFile(it) })
+            project.files(project.files(this.options.input).collect { getOutputFile(it) })
         } else {
             project.files(this.options.output)
         }
@@ -739,7 +767,7 @@ class SaxonXsltTask extends DefaultTask {
     @Internal
     protected List<String> getCommonArguments() {
         Map<String, String> commonOptions = this.options.findAll { name, value ->
-            !['input', 'output', 'outputFileExtension'].contains(name)
+            !['input', 'output'].contains(name)
         }.asImmutable()
 
         (commonOptions.inject(this.defaultArguments) { arguments, entry ->
