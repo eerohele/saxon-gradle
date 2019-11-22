@@ -26,7 +26,7 @@ repositories {
 }
 
 group = 'com.github.eerohele'
-version = '0.8.0'
+version = '0.9.0-beta1'
 
 test {
     testLogging {
