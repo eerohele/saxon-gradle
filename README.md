@@ -47,6 +47,7 @@ xslt {
 See the `examples` directory in this repository for additional examples.
 
 ## Benefits
+
 - A nice and clean syntax for running XSLT transformations with Saxon.
 - Better performance via the [Gradle Daemon][gradle-daemon].
 - Easily configure Saxon either in the Gradle buildfile or via a
@@ -88,7 +89,14 @@ useAssociatedStylesheet
 
 The plugin also supports Saxon's advanced options. For a full list of the available advanced options, see the bits
 between `// START ADVANCED OPTIONS` and `// END ADVANCED OPTIONS` in
-[`SaxonXsltTask.groovy`](https://github.com/eerohele/saxon-gradle/blob/master/src/main/groovy/com/github/eerohele/SaxonXsltTask.groovy). 
+[`SaxonXsltTask.groovy`](https://github.com/eerohele/saxon-gradle/blob/master/src/main/groovy/com/github/eerohele/SaxonXsltTask.groovy).
+
+## Plugin options
+
+Additionally, the plugin supports these options that aren't related to Saxon:
+
+- `outputFileExtension` — specify the file extension you want to use for output files rather than have it be deduced from the XSLT output method
+- `outputDirectoryLayout` — add `outputDirectoryLayout 'nested'` to your `xslt` task if you want your output directory layout to mirror your input directory layout (only if both your input and output directories are under the project base directory)
 
 ## Limitations
 - Currently only supports XSLT. If you need XQuery support, please open an issue
