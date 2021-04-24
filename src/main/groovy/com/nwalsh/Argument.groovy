@@ -1,4 +1,4 @@
-package com.github.eerohele
+package com.nwalsh
 
 import java.lang.reflect.Modifier
 

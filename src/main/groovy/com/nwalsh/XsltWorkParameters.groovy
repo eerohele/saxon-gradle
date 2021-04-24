@@ -1,4 +1,4 @@
-package com.github.eerohele
+package com.nwalsh
 
 import org.gradle.api.provider.ListProperty
 import org.gradle.workers.WorkParameters

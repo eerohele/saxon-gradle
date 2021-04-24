@@ -1,4 +1,4 @@
-package com.github.eerohele
+package com.nwalsh
 
 import org.gradle.api.Project
 import org.gradle.api.Plugin

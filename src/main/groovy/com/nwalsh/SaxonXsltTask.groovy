@@ -1,4 +1,4 @@
-package com.github.eerohele
+package com.nwalsh
 
 import groovy.util.slurpersupport.GPathResult
 import org.gradle.api.DefaultTask
@@ -135,10 +135,16 @@ class SaxonXsltTask extends DefaultTask {
 
     void stylesheet(Object stylesheet) {
         this.options.stylesheet = project.file(stylesheet)
-
-        this.xslt = this.xmlSlurper
-                .parse(stylesheet)
-                .declareNamespace(xsl: XSLT_NAMESPACE)
+        if (this.options.stylesheet.exists()) {
+            try {
+                this.xslt = this.xmlSlurper
+                        .parse(stylesheet)
+                        .declareNamespace(xsl: XSLT_NAMESPACE)
+            } catch (Exception ex) {
+                logger.warn("Failed to parse: ${this.options.stylesheet}")
+                logger.warn("  ${ex.getMessage()}")
+            }
+        }
     }
 
     void stylesheetSaxParser(String parser) {
@@ -655,12 +661,20 @@ class SaxonXsltTask extends DefaultTask {
     protected FileCollection getIncludedStylesheets(File stylesheet, FileCollection stylesheets = project.files()) {
         if (stylesheet == null) return stylesheets
 
-        GPathResult xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
-
-        project.files(stylesheet) + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
-            URI href = resolveUri(i.@href[0].toString())
-            URI uri = stylesheet.toURI().resolve(href)
-            acc + getIncludedStylesheets(new File(uri), acc)
+        try {
+            GPathResult xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
+    
+            project.files(stylesheet) + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
+                URI href = resolveUri(i.@href[0].toString())
+                URI uri = stylesheet.toURI().resolve(href)
+                acc + getIncludedStylesheets(new File(uri), acc)
+            }
+        } catch (FileNotFoundException ex) {
+            return stylesheets
+        } catch (Exception ex) {
+            logger.warn("Failed to parse: ${stylesheet}")
+            logger.warn("  ${ex.getMessage()}")
+            return stylesheets
         }
     }
 

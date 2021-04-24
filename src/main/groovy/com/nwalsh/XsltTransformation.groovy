@@ -1,4 +1,4 @@
-package com.github.eerohele
+package com.nwalsh
 
 import net.sf.saxon.Transform
 import org.gradle.workers.WorkAction
