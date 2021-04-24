@@ -1,8 +1,8 @@
 plugins {
     id 'groovy'
     id 'codenarc'
-    id 'com.gradle.plugin-publish' version '0.14.0'
-    id 'java-gradle-plugin'
+//    id 'com.gradle.plugin-publish' version '0.14.0'
+//    id 'java-gradle-plugin'
     id "maven-publish"
     id "signing"
 }
@@ -44,6 +44,7 @@ codenarc {
     configFile = file('config/codenarc/codenarc.groovy')
 }
 
+/*
 pluginBundle {
     website = 'https://github.com/ndw/saxon-gradle'
     vcsUrl = 'https://github.com/ndw/saxon-gradle.git'
@@ -61,8 +62,15 @@ gradlePlugin {
         }
     }
 }
+*/
 
 //publishPlugins.dependsOn check
+
+tasks.register("groovyDocsJar", Jar) {
+  dependsOn "groovydoc"
+  from groovydoc.destinationDir
+  archiveClassifier = "javadoc"
+}
 
 tasks.register("sourcesJar", Jar) {
   from sourceSets.main.allSource
@@ -96,6 +104,7 @@ publishing {
             distribution = 'repo'
           }
         }
+
         developers {
           developer {
             id = 'ndw'
@@ -109,6 +118,7 @@ publishing {
 
       from components.java
       artifact sourcesJar
+      artifact groovyDocsJar
     }
   }
 
