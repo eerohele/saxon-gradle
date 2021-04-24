@@ -3,6 +3,15 @@ Saxon Gradle Plugin
 
 A plugin for running [Saxon][saxon] from [Gradle][gradle].
 
+## A word about this fork
+
+[Added by Norm on 24 April 2021]
+
+This fork fixes a bug where the plugin is too aggressive about parsing
+stylesheets during the configuration phase. I’ve also updated a few
+dependencies. I don’t plan for this to be a long-lasting fork; I hope
+that @eerohele will accept my PR.
+
 ## Example
 
 ```groovy
