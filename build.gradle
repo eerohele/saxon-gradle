@@ -1,7 +1,7 @@
 plugins {
     id 'groovy'
     id 'codenarc'
-    id 'com.gradle.plugin-publish' version '0.10.1'
+    id 'com.gradle.plugin-publish' version '0.14.0'
     id 'java-gradle-plugin'
     id 'se.patrikerdes.use-latest-versions' version '0.2.13'
     id 'com.github.ben-manes.versions' version '0.27.0'
