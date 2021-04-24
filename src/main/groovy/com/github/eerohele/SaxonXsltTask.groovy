@@ -133,6 +133,7 @@ class SaxonXsltTask extends DefaultTask {
         this.options.sourceSaxParser = parser
     }
 
+    @SuppressWarnings('CatchException')
     void stylesheet(Object stylesheet) {
         this.options.stylesheet = project.file(stylesheet)
         if (this.options.stylesheet.exists()) {
@@ -658,6 +659,7 @@ class SaxonXsltTask extends DefaultTask {
         }
     }
 
+    @SuppressWarnings('CatchException')
     protected FileCollection getIncludedStylesheets(File stylesheet, FileCollection stylesheets = project.files()) {
         if (stylesheet == null) return stylesheets
 
