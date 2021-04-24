@@ -62,4 +62,63 @@ gradlePlugin {
     }
 }
 
-publishPlugins.dependsOn check
+//publishPlugins.dependsOn check
+
+tasks.register("sourcesJar", Jar) {
+  from sourceSets.main.allSource
+  archiveClassifier = "sources"
+}
+
+//tasks.findByName("publishMavenJavaPublicationToMavenRepository").dependsOn "signPluginMavenPublication"
+
+signing {
+  sign publishing.publications
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      pom {
+        name = 'Saxon Gradle Plugin'
+        description = 'A Gradle plugin for running XSLT transformations with Saxon'
+        url = 'https://github.com/ndw/saxon-gradle'
+
+        scm {
+          url = 'scm:git@github.com:ndw/saxon-gradle.git'
+          connection = 'scm:git@github.com:ndw/saxon-gradle.git'
+          developerConnection = 'scm:git@github.com:ndw/saxon-gradle.git'
+        }
+
+        licenses {
+          license {
+            name = 'The MIT License (MIT)'
+            url = 'http://opensource.org/licenses/MIT'
+            distribution = 'repo'
+          }
+        }
+        developers {
+          developer {
+            id = 'ndw'
+            name = 'Norman Walsh'
+          }
+        }
+      }
+      groupId = 'com.nwalsh'
+      artifactId = 'saxon-gradle'
+      version = version
+
+      from components.java
+      artifact sourcesJar
+    }
+  }
+
+  repositories {
+    maven {
+      url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+      credentials {
+        username = findProperty("sonatypeUsername") ?: ""
+        password = findProperty("sonatypePassword") ?: ""
+      }
+    }
+  }
+}
