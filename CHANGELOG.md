@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Allow users to specify the Saxon version to use
 - Use Gradle Worker API to prevent classpath conflicts
 - Add support for outputDirectoryLayout property #18
+- Do not require stylesheet to exist in configuration phase #9 (thanks @ndw!)
 
 ### 0.8.0 – 2019–08-02
 - Add support for outputFileExtension property #6
