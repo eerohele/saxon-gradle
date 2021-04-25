@@ -660,23 +660,30 @@ class SaxonXsltTask extends DefaultTask {
     }
 
     @SuppressWarnings('CatchException')
-    protected FileCollection getIncludedStylesheets(File stylesheet, FileCollection stylesheets = project.files()) {
-        if (stylesheet == null) return stylesheets
+    protected FileCollection getIncludedStylesheets(File stylesheet) {
+        def newCollection = []
 
-        try {
+        if (stylesheet != null) {
+          newCollection += stylesheet
+
+          try {
             GPathResult xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
-    
-            project.files(stylesheet) + (xslt.include + xslt.import).inject(stylesheets) { acc, i ->
-                URI href = resolveUri(i.@href[0].toString())
-                URI uri = stylesheet.toURI().resolve(href)
-                acc + getIncludedStylesheets(new File(uri), acc)
+
+            (xslt.include + xslt.import).each { elem ->
+              URI href = resolveUri(elem.@href[0].toString())
+              URI uri = stylesheet.toURI().resolve(href)
+              if (uri.getScheme() == "file") {
+                newCollection += getIncludedStylesheets(new File(uri))
+              }
             }
-        } catch (FileNotFoundException ex) {
-            return stylesheets
-        } catch (Exception ex) {
+          } catch (FileNotFoundException ex) {
+            // nevermind
+          } catch (Exception ex) {
             logger.warn("Failed to parse: ${stylesheet}")
             logger.warn("  ${ex.getMessage()}")
-            return stylesheets
+          }
+
+          return project.files(newCollection)
         }
     }
 
@@ -737,7 +744,7 @@ class SaxonXsltTask extends DefaultTask {
     @InputFiles
     @SkipWhenEmpty
     FileCollection getInputFiles() {
-        FileCollection stylesheets = getIncludedStylesheets(this.options.stylesheet)
+        FileCollection stylesheets = project.files() + getIncludedStylesheets(this.options.stylesheet)
 
         if (this.options.input != null) {
             project.files(this.options.input) + stylesheets
