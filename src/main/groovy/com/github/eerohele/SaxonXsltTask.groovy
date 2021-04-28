@@ -139,7 +139,7 @@ class SaxonXsltTask extends DefaultTask {
         if (this.options.stylesheet.exists()) {
             try {
                 this.xslt = this.xmlSlurper
-                        .parse(stylesheet)
+                        .parse(this.options.stylesheet)
                         .declareNamespace(xsl: XSLT_NAMESPACE)
             } catch (Exception ex) {
                 logger.warn("Failed to parse: ${this.options.stylesheet}")
