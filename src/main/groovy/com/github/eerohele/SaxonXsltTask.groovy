@@ -92,6 +92,14 @@ class SaxonXsltTask extends DefaultTask {
         this.options.collectionResolver = resolver
     }
 
+    void catalog(Object catalog) {
+        if (catalog instanceof List) {
+            this.options.catalog = catalog.join(";")
+        } else {
+            this.options.catalog = catalog.toString()
+        }
+    }
+
     void dtd(Object dtd) {
         this.options.dtd = dtd
     }
