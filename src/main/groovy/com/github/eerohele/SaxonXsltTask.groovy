@@ -1,6 +1,15 @@
 package com.github.eerohele
 
-import groovy.util.slurpersupport.GPathResult
+import org.xml.sax.InputSource
+import javax.xml.transform.sax.SAXSource
+
+import net.sf.saxon.s9api.DocumentBuilder
+import net.sf.saxon.s9api.Processor
+import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.SaxonApiException
+import net.sf.saxon.s9api.XPathExecutable
+import net.sf.saxon.s9api.XdmNode
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.Classpath
@@ -25,6 +34,7 @@ import java.nio.file.Path
 class SaxonXsltTask extends DefaultTask {
     protected static final String PERIOD = '.'
     protected static final String XSLT_NAMESPACE = 'http://www.w3.org/1999/XSL/Transform'
+    protected static final QName METHOD = new QName('method')
 
     protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
@@ -39,8 +49,11 @@ class SaxonXsltTask extends DefaultTask {
 
     protected Map<String, String> stylesheetParams = [:]
 
-    private final XmlSlurper xmlSlurper = new XmlSlurper()
-    private GPathResult xslt
+    private final Processor processor
+    private final DocumentBuilder builder
+    private final XPathExecutable findOutput
+    private XdmNode xslt = null
+
     private Catalog xmlCatalog
     private final CatalogManager catalogManager = new CatalogManager()
 
@@ -64,9 +77,17 @@ class SaxonXsltTask extends DefaultTask {
         super()
         this.workerExecutor = workerExecutor
         this.classpath = project.objects.fileCollection()
-        xmlSlurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
-        xmlSlurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
+
         catalogManager.setIgnoreMissingProperties(true)
+
+        processor = new Processor(false)
+        builder = processor.newDocumentBuilder()
+        builder.setDTDValidation(false)
+        builder.setLineNumbering(true)
+
+        def xpc = processor.newXPathCompiler()
+        xpc.declareNamespace("xsl", XSLT_NAMESPACE)
+        findOutput = xpc.compile("//xsl:output[not(@name)]")
     }
 
     // START COMMON OPTIONS
@@ -133,18 +154,41 @@ class SaxonXsltTask extends DefaultTask {
         this.options.sourceSaxParser = parser
     }
 
-    @SuppressWarnings('CatchException')
     void stylesheet(Object stylesheet) {
-        this.options.stylesheet = project.file(stylesheet)
-        if (this.options.stylesheet.exists()) {
-            try {
-                this.xslt = this.xmlSlurper
-                        .parse(stylesheet)
-                        .declareNamespace(xsl: XSLT_NAMESPACE)
-            } catch (Exception ex) {
-                logger.warn("Failed to parse: ${this.options.stylesheet}")
-                logger.warn("  ${ex.getMessage()}")
+        this.xslt = null
+        try {
+            // If it's a string that looks like a URI, try to make it a URI
+            if (stylesheet instanceof String && stylesheet ==~ /^\S+:\/\/.*/) {
+                try {
+                    stylesheet = new URI(stylesheet)
+                } catch (URISyntaxException ex) {
+                    // nevermind
+                }
             }
+
+            if (stylesheet instanceof URI) {
+                // If it's a file: URI, turn it into a file
+                if (stylesheet.getScheme() == "file") {
+                    this.options.stylesheet = project.file(stylesheet.getPath())
+                    if (this.options.stylesheet.exists()) {
+                        this.xslt = builder.build(this.options.stylesheet)
+                    }
+                } else {
+                    // Otherwise just try to load it (for the output method)
+                    this.options.stylesheet = stylesheet
+                    def source = new InputSource(stylesheet.toASCIIString())
+                    this.xslt = builder.build(new SAXSource(source))
+                }
+            } else {
+                // If it's not a URI, assume it's a file, load it if it exists
+                this.options.stylesheet = project.file(stylesheet)
+                if (this.options.stylesheet.exists()) {
+                    this.xslt = builder.build(this.options.stylesheet)
+                }
+            }
+        } catch (SaxonApiException ex) {
+            logger.warn("Failed to parse: ${this.options.stylesheet}")
+            logger.warn("  ${ex.getMessage()}")
         }
     }
 
@@ -643,8 +687,16 @@ class SaxonXsltTask extends DefaultTask {
         }
 
         // Read output file extension from the <xsl:output> element of the
-        // stylesheet.
-        String method = this.xslt.output.@method
+        // stylesheet. This is only a heuristic.
+        String method = null
+        if (this.xslt != null) {
+            def selector = findOutput.load()
+            selector.setContextItem(this.xslt)
+            selector.iterator().each { snode ->
+                method = snode.getAttributeValue(METHOD)
+            }
+        }
+
         return method ? method : 'xml'
     }
 
@@ -656,34 +708,6 @@ class SaxonXsltTask extends DefaultTask {
             resolved ? new URI(resolved) : uri
         } else {
             uri
-        }
-    }
-
-    @SuppressWarnings('CatchException')
-    protected FileCollection getIncludedStylesheets(File stylesheet) {
-        def newCollection = []
-
-        if (stylesheet != null) {
-          newCollection += stylesheet
-
-          try {
-            GPathResult xslt = this.xmlSlurper.parse(stylesheet).declareNamespace(xsl: XSLT_NAMESPACE)
-
-            (xslt.include + xslt.import).each { elem ->
-              URI href = resolveUri(elem.@href[0].toString())
-              URI uri = stylesheet.toURI().resolve(href)
-              if (uri.getScheme() == "file") {
-                newCollection += getIncludedStylesheets(new File(uri))
-              }
-            }
-          } catch (FileNotFoundException ex) {
-            // nevermind
-          } catch (Exception ex) {
-            logger.warn("Failed to parse: ${stylesheet}")
-            logger.warn("  ${ex.getMessage()}")
-          }
-
-          return project.files(newCollection)
         }
     }
 
@@ -744,13 +768,14 @@ class SaxonXsltTask extends DefaultTask {
     @InputFiles
     @SkipWhenEmpty
     FileCollection getInputFiles() {
-        FileCollection stylesheets = project.files() + getIncludedStylesheets(this.options.stylesheet)
-
+        FileCollection files = project.files()
         if (this.options.input != null) {
-            project.files(this.options.input) + stylesheets
-        } else {
-            stylesheets
+            files += project.files(this.options.input)
         }
+        if (this.options.stylesheet != null && this.options.stylesheet instanceof File) {
+            files += project.files(this.options.stylesheet)
+        }
+        return files
     }
 
     // Turn a key-value pair into a Saxon command line argument.
