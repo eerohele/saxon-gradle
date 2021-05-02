@@ -21,9 +21,6 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.file.FileCollection
 import org.gradle.api.InvalidUserDataException
 
-import org.apache.xml.resolver.Catalog
-import org.apache.xml.resolver.CatalogManager
-
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 
@@ -54,9 +51,6 @@ class SaxonXsltTask extends DefaultTask {
     private final XPathExecutable findOutput
     private XdmNode xslt = null
 
-    private Catalog xmlCatalog
-    private final CatalogManager catalogManager = new CatalogManager()
-
     // Saxon command-line options take 'on' and 'off', but it's best to let the
     // users use booleans as well.
     //
@@ -78,8 +72,6 @@ class SaxonXsltTask extends DefaultTask {
         this.workerExecutor = workerExecutor
         this.classpath = project.objects.fileCollection()
 
-        catalogManager.setIgnoreMissingProperties(true)
-
         processor = new Processor(false)
         builder = processor.newDocumentBuilder()
         builder.setDTDValidation(false)
@@ -98,16 +90,6 @@ class SaxonXsltTask extends DefaultTask {
 
     void collectionResolver(String resolver) {
         this.options.collectionResolver = resolver
-    }
-
-    void catalog(Object catalog) {
-        this.options.catalog = project.file(catalog)
-
-        URI catalogs = this.options.catalog.toURI()
-        catalogManager.setCatalogFiles(catalogs.toString())
-        xmlCatalog = new Catalog(catalogManager)
-        xmlCatalog.setupReaders()
-        xmlCatalog.parseCatalog(catalogs.toString())
     }
 
     void dtd(Object dtd) {
@@ -698,17 +680,6 @@ class SaxonXsltTask extends DefaultTask {
         }
 
         return method ? method : 'xml'
-    }
-
-    protected URI resolveUri(String path) {
-        URI uri = new URI(path)
-
-        if (this.options.catalog) {
-            String resolved = xmlCatalog.resolveURI(path)
-            resolved ? new URI(resolved) : uri
-        } else {
-            uri
-        }
     }
 
     String getOutputFileName(File file) {
