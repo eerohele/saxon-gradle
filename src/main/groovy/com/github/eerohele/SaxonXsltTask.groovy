@@ -39,6 +39,7 @@ class SaxonXsltTask extends DefaultTask implements SaxonPluginOptions {
     protected final Map<String, String> advancedOptions = [:]
     protected final Map<String, Object> pluginOptions = [outputDirectoryLayout: 'flat']
 
+    protected String pluginConfig = SaxonPluginConfigurations.DEFAULT
     protected Map<String, String> stylesheetParams = [:]
 
     private final Processor processor
@@ -92,20 +93,28 @@ class SaxonXsltTask extends DefaultTask implements SaxonPluginOptions {
 
     Object getOption(String name) {
         return name in options ? options[name] :
-            SaxonPluginConfiguration.instance.options[name]
+            SaxonPluginConfigurations.instance.getOptions(pluginConfig)[name]
     }
 
     Object getAdvancedOption(String name) {
         return name in advancedOptions ? advancedOptions[name] :
-            SaxonPluginConfiguration.instance.advancedOptions[name]
+            SaxonPluginConfigurations.instance.getAdvancedOptions(pluginConfig)[name]
     }
 
     Object getPluginOption(String name) {
         return name in pluginOptions ? pluginOptions[name] :
-            SaxonPluginConfiguration.instance.pluginOptions[name]
+            SaxonPluginConfigurations.instance.getPluginOptions(pluginConfig)[name]
     }
 
     // ============================================================
+
+    void pluginConfiguration(String name) {
+        if (SaxonPluginConfigurations.instance.knownConfiguration(name)) {
+            pluginConfig = name
+        } else {
+            throw new InvalidUserDataException("Unknown SaxonXsltTask plugin configuration: ${name}")
+        }
+    }
 
     void input(Object input) {
         setOption(INPUT_OPTION, input)
@@ -285,7 +294,7 @@ class SaxonXsltTask extends DefaultTask implements SaxonPluginOptions {
     @Internal
     protected List<String> getCommonArguments() {
         Map<String, String> commonOptions = [:]
-        SaxonPluginConfiguration.instance.options.findAll { name, value ->
+        SaxonPluginConfigurations.instance.getOptions(pluginConfig).findAll { name, value ->
             commonOptions[name] = value
         }
         this.options.findAll { name, value ->
@@ -294,7 +303,7 @@ class SaxonXsltTask extends DefaultTask implements SaxonPluginOptions {
             }
         }
 
-        SaxonPluginConfiguration.instance.advancedOptions.findAll { name, value ->
+        SaxonPluginConfigurations.instance.getAdvancedOptions(pluginConfig).findAll { name, value ->
             advancedOptions[name] = value
         }
         this.advancedOptions.findAll { name, value ->
@@ -329,7 +338,7 @@ class SaxonXsltTask extends DefaultTask implements SaxonPluginOptions {
             if (getPluginOption('classpath') != null) {
                 it.getClasspath().from(getPluginOption('classpath'))
             }
-        };
+        }
 
         List<String> commonArguments = getCommonArguments() + getStylesheetParameters()
 
