@@ -59,7 +59,7 @@ class SaxonXsltTaskSpec extends Specification {
         GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withArguments(':xslt')
+                .withArguments(':xslt', '--stacktrace', '--warning-mode=fail')
                 .forwardOutput()
                 .build()
     }
@@ -501,7 +501,7 @@ class SaxonXsltTaskSpec extends Specification {
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withArguments(':xslt')
+                .withArguments(':xslt', '--stacktrace', '--warning-mode=fail')
                 .forwardOutput()
                 .build()
 
