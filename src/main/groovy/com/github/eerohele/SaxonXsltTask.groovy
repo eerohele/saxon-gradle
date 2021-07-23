@@ -6,6 +6,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.SkipWhenEmpty
@@ -28,13 +29,16 @@ class SaxonXsltTask extends DefaultTask {
 
     protected final List<String> defaultArguments = ['-quit:off'].asImmutable()
 
+    @Input
     protected final Map<String, Object> options = [output: project.buildDir]
 
+    @Input
     protected final Map<String, Object> pluginOptions = [outputDirectoryLayout: 'flat']
 
     @Classpath
     final ConfigurableFileCollection classpath
 
+    @Input
     protected final Map<String, String> advancedOptions = [:]
 
     protected Map<String, String> stylesheetParams = [:]
@@ -42,6 +46,8 @@ class SaxonXsltTask extends DefaultTask {
     private final XmlSlurper xmlSlurper = new XmlSlurper()
     private GPathResult xslt
     private Catalog xmlCatalog
+
+    @Internal
     private final CatalogManager catalogManager = new CatalogManager()
 
     // Saxon command-line options take 'on' and 'off', but it's best to let the
@@ -634,6 +640,26 @@ class SaxonXsltTask extends DefaultTask {
 
     void parameters(Map<String, String> parameters) {
         this.stylesheetParams = parameters
+    }
+
+    public Map<String, Object> getOptions()
+    {
+        return options;
+    }
+
+    public Map<String, Object> getPluginOptions()
+    {
+        return pluginOptions;
+    }
+
+    public Map<String, String> getAdvancedOptions()
+    {
+        return advancedOptions;
+    }
+
+    public CatalogManager getCatalogManager()
+    {
+        return catalogManager;
     }
 
     @Internal
