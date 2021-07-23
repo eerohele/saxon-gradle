@@ -1,6 +1,7 @@
 plugins {
     id 'groovy'
     id 'codenarc'
+    id 'eclipse'
     id 'com.gradle.plugin-publish' version '0.14.0'
     id 'java-gradle-plugin'
     id 'se.patrikerdes.use-latest-versions' version '0.2.13'
@@ -62,4 +63,14 @@ publishPlugins.dependsOn check
 
 rootProject.tasks.named("processResources") {
     duplicatesStrategy = 'include'
+}
+
+eclipse {
+    project {
+        natures 'edu.umd.cs.findbugs.plugin.eclipse.findbugsNature'
+        buildCommand 'edu.umd.cs.findbugs.plugin.eclipse.findbugsBuilder'
+    }
+
+    classpath.downloadJavadoc = true
+    classpath.downloadSources = true
 }
