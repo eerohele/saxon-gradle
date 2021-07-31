@@ -2,7 +2,6 @@ plugins {
     id 'codenarc'
     id 'com.github.ben-manes.versions' version '0.27.0'
     id 'com.gradle.plugin-publish' version '0.14.0'
-    id 'eclipse'
     id 'groovy'
     id 'java-gradle-plugin'
     id 'se.patrikerdes.use-latest-versions' version '0.2.13'
@@ -63,12 +62,4 @@ publishPlugins.dependsOn check
 // Temporary workaround for phantom duplicates in Gradle 7+.
 rootProject.tasks.named("processResources") {
     duplicatesStrategy = 'include'
-}
-
-eclipse {
-    natures 'edu.umd.cs.findbugs.plugin.eclipse.findbugsNature'
-    buildCommand 'edu.umd.cs.findbugs.plugin.eclipse.findbugsBuilder'
-
-    classpath.downloadJavadoc = true
-    classpath.downloadSources = true
 }
