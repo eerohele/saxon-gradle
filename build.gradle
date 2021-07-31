@@ -9,6 +9,10 @@ plugins {
 
 sourceCompatibility = 1.8
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation gradleApi()
     implementation 'net.sf.saxon:Saxon-HE:9.8.0-14'
