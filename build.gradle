@@ -23,7 +23,7 @@ dependencies {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 group = 'com.github.eerohele'
