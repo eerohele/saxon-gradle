@@ -63,3 +63,7 @@ gradlePlugin {
 }
 
 publishPlugins.dependsOn check
+
+rootProject.tasks.named("processResources") {
+    duplicatesStrategy = 'include'
+}
