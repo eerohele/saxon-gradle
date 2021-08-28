@@ -423,7 +423,7 @@ class SaxonXsltTaskSpec extends Specification {
 
         then:
         result.task(':xslt').outcome == TaskOutcome.SUCCESS
-        fileAsString(outputFile('xml1.html')).equals("<b></b>")
+        fileAsString(outputFile('xml1.html')).equals("<!DOCTYPE HTML><b></b>")
     }
 
     @SuppressWarnings(['MethodName', 'DuplicateStringLiteral', 'DuplicateListLiteral'])
