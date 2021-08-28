@@ -36,7 +36,7 @@ test {
 }
 
 wrapper {
-    gradleVersion = '6.0'
+    gradleVersion = '7.2'
 }
 
 codenarc {
