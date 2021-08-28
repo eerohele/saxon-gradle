@@ -31,6 +31,9 @@ class SaxonXsltTaskSpec extends Specification {
 
     @SuppressWarnings(['DuplicateStringLiteral'])
     void setup() {
+        // Why do we need to do this?
+        testProjectDir.create()
+
         gradle = testProjectDir.newFile('build.gradle')
         xslt = testProjectDir.newFile('stylesheet.xsl')
 

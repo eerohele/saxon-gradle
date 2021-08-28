@@ -68,3 +68,7 @@ publishPlugins.dependsOn check
 rootProject.tasks.named("processResources") {
     duplicatesStrategy = 'include'
 }
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
