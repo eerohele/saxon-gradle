@@ -18,6 +18,7 @@ dependencies {
         exclude group: 'org.codehaus.groovy'
     }
 
+    testImplementation 'junit:junit:4.13.2'
     testImplementation gradleTestKit()
 }
 
