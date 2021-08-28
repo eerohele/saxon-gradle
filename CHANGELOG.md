@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add support for outputDirectoryLayout property #18
 - Do not require stylesheet to exist in configuration phase #19 (thanks @ndw!)
 - Fix race condition in `getIncludedStylesheets` #20 (thanks @ndw!)
+- Fix compatibility with Gradle 7
 
 ### 0.8.0 – 2019–08-02
 - Add support for outputFileExtension property #6
