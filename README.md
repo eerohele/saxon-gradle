@@ -21,7 +21,7 @@ dependencies {
 }
 
 plugins {
-    id 'com.github.eerohele.saxon-gradle' version '0.9.0-beta2'
+    id 'com.github.eerohele.saxon-gradle' version '0.9.0-beta4'
 }
 
 xslt {
